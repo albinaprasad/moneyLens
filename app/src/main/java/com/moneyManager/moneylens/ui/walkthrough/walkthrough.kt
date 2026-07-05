@@ -20,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
@@ -31,12 +33,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.moneyManager.moneylens.ui.theme.primary_09
 import com.moneyManager.moneylens.ui.theme.white
+import kotlinx.coroutines.launch
 
 @Composable
 fun WalkThrough(){
     val viewModel: WalkThroughViewmodel = hiltViewModel()
     val pages by viewModel.pages.collectAsState()
     val pagerState = rememberPagerState(pageCount = { pages.size })
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize().background(color = white)) {
         Column(
@@ -75,14 +79,25 @@ fun WalkThrough(){
             }
 
             Button(
-                onClick = { },
+                onClick = {
+                    coroutineScope.launch {
+                        if (pagerState.currentPage < pages.lastIndex){
+                            pagerState.animateScrollToPage(
+                                pagerState.currentPage + 1
+                            )
+                        }else{
+                            //Todo need to direct to top screen
+                        }
+                    }
+                },
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = primary_09
                 ),
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(36.dp)
                     .fillMaxWidth()
+                    .height(51.dp)
                     .dropShadow(
                         shape = RoundedCornerShape(16.dp),
                         shadow = androidx.compose.ui.graphics.shadow.Shadow(

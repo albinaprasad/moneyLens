@@ -45,6 +45,9 @@ fun walkThroughPages(page: WalkThroughPageData) {
             modifier = Modifier.size(254.dp, 254.dp)
         )
 
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .height(30.dp))
         Text(
             modifier = Modifier
                 .fillMaxWidth()
@@ -69,5 +72,6 @@ fun walkThroughPages(page: WalkThroughPageData) {
             fontWeight = FontWeight.Normal,
             textAlign = TextAlign.Center
         )
+        Spacer(modifier = Modifier.height(30.dp))
     }
 }
