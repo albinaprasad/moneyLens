@@ -10,6 +10,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.moneyManager.moneylens.ui.TopScreen.TopBar
+import com.moneyManager.moneylens.ui.splashScreen.SplashScreen
 import com.moneyManager.moneylens.ui.theme.MoneyLensTheme
 import com.moneyManager.moneylens.ui.walkthrough.WalkThrough
 import com.moneyManager.moneylens.ui.walkthrough.walkThroughPages
@@ -24,7 +26,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             MoneyLensTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    WalkThrough()
+                   // WalkThrough()
+                    SplashScreen(){}
+
                 }
             }
         }
