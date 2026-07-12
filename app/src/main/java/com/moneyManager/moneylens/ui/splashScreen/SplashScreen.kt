@@ -93,7 +93,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
                 1f,
                 animationSpec = tween(300, easing = FastOutSlowInEasing)
             )
-
+            delay(300)
             onSplashFinished()
         }
 
