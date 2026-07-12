@@ -2,12 +2,13 @@ package com.moneyManager.moneylens.navigation
 
 import kotlinx.serialization.Serializable
 
-@Serializable
 sealed class AppScreens {
+    @Serializable
+    data object Splash
 
     @Serializable
-    data object Splash : AppScreens()
+    data object Walkthrough
 
     @Serializable
-    data object Walkthrough : AppScreens()
+    data object TopScreen
 }

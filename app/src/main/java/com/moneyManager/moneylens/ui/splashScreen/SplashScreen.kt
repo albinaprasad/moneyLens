@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,21 +49,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.moneyManager.moneylens.R
+import com.moneyManager.moneylens.enums.AppLaunchState
 import com.moneyManager.moneylens.ui.theme.myFont
 import com.moneyManager.moneylens.ui.theme.primary_09
 import com.moneyManager.moneylens.ui.theme.white
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlin.math.log
 
 @Composable
-fun SplashScreen(onSplashFinished: () -> Unit) {
+fun SplashScreen(onSplashFinished: (AppLaunchState) -> Unit) {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(color = white),
         contentAlignment = Alignment.Center
     ) {
+        val viewModal = hiltViewModel<SplashViewModal>()
         val density = LocalDensity.current
         val screenWidthPx = with(density) { maxWidth.toPx() }
         val screenHeightPx = with(density) { maxHeight.toPx() }
@@ -75,6 +82,7 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
 
         val logoScale = remember { Animatable(0f) }
         val alphaScale = remember { Animatable(0f) }
+        val currentScreen = viewModal.launchState.collectAsStateWithLifecycle()
 
         LaunchedEffect(Unit) {
             logoScale.animateTo(
@@ -93,8 +101,8 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
                 1f,
                 animationSpec = tween(300, easing = FastOutSlowInEasing)
             )
-            delay(300)
-            onSplashFinished()
+            delay(500)
+            onSplashFinished(currentScreen.value)
         }
 
         Image(

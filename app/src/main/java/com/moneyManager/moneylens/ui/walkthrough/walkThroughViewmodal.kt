@@ -1,12 +1,25 @@
 package com.moneyManager.moneylens.ui.walkthrough
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.moneyManager.moneylens.enums.AppLaunchState
+import com.moneyManager.moneylens.preferences.UserPreference
 import com.moneyManager.moneylens.ui.walkthrough.data.WalkThroughPageData
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
-class WalkThroughViewmodel: ViewModel() {
+@HiltViewModel
+class WalkThroughViewmodel @Inject constructor(
+    private val userPreference: UserPreference
+): ViewModel() {
+    fun setWalkThroughCompleted() {
+        viewModelScope.launch {
+            userPreference.setLaunchState(AppLaunchState.HOME)
+        }
+    }
 
     private val _pages = MutableStateFlow(
         listOf(

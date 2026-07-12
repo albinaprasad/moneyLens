@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
@@ -36,7 +37,7 @@ import com.moneyManager.moneylens.ui.theme.white
 import kotlinx.coroutines.launch
 
 @Composable
-fun WalkThrough(){
+fun WalkThrough(onWlakThroughCompleted:() -> Unit){
     val viewModel: WalkThroughViewmodel = hiltViewModel()
     val pages by viewModel.pages.collectAsState()
     val pagerState = rememberPagerState(pageCount = { pages.size })
@@ -86,7 +87,8 @@ fun WalkThrough(){
                                 pagerState.currentPage + 1
                             )
                         }else{
-                            //Todo need to direct to top screen
+                            viewModel.setWalkThroughCompleted()
+                           onWlakThroughCompleted()
                         }
                     }
                 },
@@ -100,7 +102,7 @@ fun WalkThrough(){
                     .height(51.dp)
                     .dropShadow(
                         shape = RoundedCornerShape(16.dp),
-                        shadow = androidx.compose.ui.graphics.shadow.Shadow(
+                        shadow = Shadow(
                             radius = 16.dp,
                             spread = 0.dp,
                             color = Color.Black.copy(alpha = 0.35f),
@@ -120,5 +122,7 @@ fun WalkThrough(){
 @Preview
 @Composable
 fun previeew(){
-    WalkThrough()
+    WalkThrough(
+        onWlakThroughCompleted = {}
+    )
 }
