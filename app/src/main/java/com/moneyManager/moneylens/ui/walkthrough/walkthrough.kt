@@ -37,7 +37,7 @@ import com.moneyManager.moneylens.ui.theme.white
 import kotlinx.coroutines.launch
 
 @Composable
-fun WalkThrough(onWlakThroughCompleted:() -> Unit){
+fun WalkThrough(onWalkThroughCompleted:() -> Unit){
     val viewModel: WalkThroughViewmodel = hiltViewModel()
     val pages by viewModel.pages.collectAsState()
     val pagerState = rememberPagerState(pageCount = { pages.size })
@@ -88,7 +88,7 @@ fun WalkThrough(onWlakThroughCompleted:() -> Unit){
                             )
                         }else{
                             viewModel.setWalkThroughCompleted()
-                           onWlakThroughCompleted()
+                           onWalkThroughCompleted()
                         }
                     }
                 },
@@ -123,6 +123,6 @@ fun WalkThrough(onWlakThroughCompleted:() -> Unit){
 @Composable
 fun previeew(){
     WalkThrough(
-        onWlakThroughCompleted = {}
+        onWalkThroughCompleted = {}
     )
 }

@@ -59,14 +59,13 @@ fun AppNavHost(navController: NavHostController) {
         }
 
         composable<AppScreens.Walkthrough> {
-            WalkThrough(){
-                navController.navigate(AppScreens.TopScreen){
-                    popUpTo<AppScreens.Splash> {
+            WalkThrough {
+                navController.navigate(AppScreens.TopScreen) {
+                    popUpTo(navController.graph.id) {
                         inclusive = true
                     }
                     launchSingleTop = true
                 }
-
             }
         }
 
