@@ -2,7 +2,6 @@ package com.moneyManager.moneylens.ui.walkthrough
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +11,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -30,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.moneyManager.moneylens.ui.theme.primary_09
 import com.moneyManager.moneylens.ui.theme.white
+import com.moneyManager.moneylens.ui.utils.DeviceOrientation
+import com.moneyManager.moneylens.ui.utils.LocalDeviceOrientation
 import kotlinx.coroutines.launch
 
 @Composable
@@ -38,6 +41,7 @@ fun WalkThrough(onWalkThroughCompleted: () -> Unit) {
     val pages by viewModel.pages.collectAsState()
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val coroutineScope = rememberCoroutineScope()
+    val isLandscape = LocalDeviceOrientation.current == DeviceOrientation.LANDSCAPE
 
     Column(
         modifier = Modifier
@@ -54,8 +58,7 @@ fun WalkThrough(onWalkThroughCompleted: () -> Unit) {
             walkThroughPages(pages[index])
         }
 
-
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(if (isLandscape) 8.dp else 24.dp))
 
         WormPagerIndicator(
             pagerState = pagerState,
@@ -76,7 +79,10 @@ fun WalkThrough(onWalkThroughCompleted: () -> Unit) {
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = primary_09),
             modifier = Modifier
-                .padding(horizontal = 36.dp, vertical = 24.dp)
+                .padding(
+                    horizontal = 36.dp,
+                    vertical = if (isLandscape) 8.dp else 24.dp
+                )
                 .fillMaxWidth()
                 .height(51.dp)
                 .dropShadow(
@@ -92,6 +98,6 @@ fun WalkThrough(onWalkThroughCompleted: () -> Unit) {
             Text("Continue")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(if (isLandscape) 4.dp else 16.dp))
     }
 }

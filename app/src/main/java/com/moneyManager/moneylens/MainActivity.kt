@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.moneyManager.moneylens.navigation.AppNavHost
 import com.moneyManager.moneylens.ui.splashScreen.SplashScreen
 import com.moneyManager.moneylens.ui.theme.MoneyLensTheme
+import com.moneyManager.moneylens.ui.utils.OrientationProvider
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -23,8 +24,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MoneyLensTheme {
-                val navController = rememberNavController()
-                AppNavHost(navController)
+                OrientationProvider {
+                    val navController = rememberNavController()
+                    AppNavHost(navController)
+                }
             }
         }
     }
