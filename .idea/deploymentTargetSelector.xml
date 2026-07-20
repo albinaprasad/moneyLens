@@ -10,30 +10,8 @@
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="preview (1)">
+      <SelectionState runConfigName="strat">
         <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="CommonTopBarPrev">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-07-19T14:59:51.216514400Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=F:\ANDROIDSTUDIOSETUPS\.android\Pixel_7.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="preview (2)">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-07-19T14:59:51.216514400Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=F:\ANDROIDSTUDIOSETUPS\.android\Pixel_7.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
         <DialogSelection />
       </SelectionState>
     </selectionStates>

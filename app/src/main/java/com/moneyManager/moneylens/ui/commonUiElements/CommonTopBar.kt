@@ -16,10 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.moneyManager.moneylens.R
+import com.moneyManager.moneylens.ui.theme.primary_06
 
 @Composable
 fun CommonTopBar(
@@ -51,7 +53,9 @@ fun CommonTopBar(
         Text(
             text = heading,
             textAlign = TextAlign.Center,
-            modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+            color = primary_06,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.height(20.dp).fillMaxWidth().padding(horizontal = 4.dp)
         )
 
         if (showEndIcon) {
