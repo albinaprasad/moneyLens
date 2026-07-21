@@ -18,3 +18,5 @@ val white = Color(0xFFFFFFFF)
 val secondary = Color(0xFF767676)
 
 val primary_02 = Color(0xFFABB6D0)
+
+val boxColor = Color(0xFFCDD3E3)
