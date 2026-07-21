@@ -8,13 +8,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,7 +29,7 @@ fun CircularPieChart(
     modifier: Modifier = Modifier
 ) {
     val totalValue = slices.sumOf { it.value.toDouble() }.toFloat()
-    val strokeWidthPx = 100f // Matches your original stroke width
+    val strokeWidthPx = 100f
 
 
     BoxWithConstraints(
@@ -39,12 +37,9 @@ fun CircularPieChart(
         contentAlignment = Alignment.Center
     ) {
         val density = LocalDensity.current
-
-        // Calculate radius to the center line of the arc stroke
         val chartSizePx = with(density) { minOf(maxWidth, maxHeight).toPx() }
         val radius = (chartSizePx - strokeWidthPx) / 2f
 
-        // 2. Draw your original Canvas
         Canvas(modifier = Modifier.fillMaxSize()) {
             var currentStartAngle = -90f
 

@@ -33,7 +33,7 @@ import com.moneyManager.moneylens.ui.theme.white
 @Composable
 fun StrategyScreen(
 //    onCompleted: () -> Unit,
-//    viewModel: StrategyScreenViewModal = hiltViewModel()
+    viewModel: StrategyScreenViewModal = hiltViewModel()
 ) {
     val dynamicChartSlices = listOf(
         ChartSlice(name = "Housing", value = 35f, color = Color(0xFFEF4444)),    // Red
