@@ -87,7 +87,6 @@ fun CircularPieChart(
                         ambientColor = Color.Black,
                         spotColor = Color.Black
                     )
-                    // Blends 50% boxColor over White to produce a solid opaque color that casts a shadow:
                     .background(
                         color = boxColor.copy(alpha = 0.5f).compositeOver(Color.White),
                         shape = RoundedCornerShape(8.dp)
