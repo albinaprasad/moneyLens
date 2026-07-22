@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -38,8 +37,12 @@ import com.moneyManager.moneylens.ui.theme.primary_06
 import com.moneyManager.moneylens.ui.theme.white
 
 @Composable
-fun CustomDropDown(modifier: Modifier){
-    val options = listOf("Balanced - 50/30/20", "Aggressive - 70/20/10", "Conservative - 30/40/30")
+fun CustomDropDown(
+    options: List<String>,
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+){
     var expanded by rememberSaveable { mutableStateOf(false) }
     var selectedOption by rememberSaveable { mutableStateOf(options[0]) }
     val arrowRotationAngle by animateFloatAsState(
@@ -102,6 +105,7 @@ fun CustomDropDown(modifier: Modifier){
                     text = { Text(text = option, color = primary_06) },
                     onClick = {
                         selectedOption = option
+                        onOptionSelected(option)
                         expanded = false
                     }
                 )

@@ -11,4 +11,7 @@ sealed class AppScreens {
 
     @Serializable
     data object TopScreen
+
+    @Serializable
+    data object StrategyScreen
 }

@@ -18,9 +18,9 @@ class UserPreference @Inject constructor(
     val currentAppState: Flow<AppLaunchState> = dataStore.data.map { preferences ->
         val stateString = preferences[LAUNCH_STATE_KEY]
         try {
-            if (stateString != null) AppLaunchState.valueOf(stateString) else AppLaunchState.SPLASH
+            if (stateString != null) AppLaunchState.valueOf(stateString) else AppLaunchState.WALKTHROUGH
         } catch (e: Exception) {
-            AppLaunchState.SPLASH
+            AppLaunchState.WALKTHROUGH
         }
     }
 

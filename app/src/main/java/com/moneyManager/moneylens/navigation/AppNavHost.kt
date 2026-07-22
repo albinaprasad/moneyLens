@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.moneyManager.moneylens.enums.AppLaunchState
+import com.moneyManager.moneylens.ui.StratergyScreen.StrategyScreen
 import com.moneyManager.moneylens.ui.TopScreen.TopScreen
 import com.moneyManager.moneylens.ui.splashScreen.SplashScreen
 import com.moneyManager.moneylens.ui.walkthrough.WalkThrough
@@ -45,8 +46,9 @@ fun AppNavHost(navController: NavHostController) {
         composable<AppScreens.Splash> {
             SplashScreen(onSplashFinished = { state ->
                 val destination = when (state) {
+                    AppLaunchState.WALKTHROUGH-> AppScreens.Walkthrough
+                    AppLaunchState.STRATEGY-> AppScreens.StrategyScreen
                     AppLaunchState.HOME -> AppScreens.TopScreen
-                    else -> AppScreens.Walkthrough
                 }
                 
                 navController.navigate(destination) {
@@ -60,7 +62,7 @@ fun AppNavHost(navController: NavHostController) {
 
         composable<AppScreens.Walkthrough> {
             WalkThrough {
-                navController.navigate(AppScreens.TopScreen) {
+                navController.navigate(AppScreens.StrategyScreen) {
                     popUpTo(navController.graph.id) {
                         inclusive = true
                     }
@@ -71,6 +73,17 @@ fun AppNavHost(navController: NavHostController) {
 
         composable<AppScreens.TopScreen> {
             TopScreen()
+        }
+
+        composable<AppScreens.StrategyScreen> {
+             StrategyScreen{
+                 navController.navigate(AppScreens.TopScreen) {
+                     popUpTo(navController.graph.id) {
+                         inclusive = true
+                     }
+                     launchSingleTop = true
+                 }
+             }
         }
     }
 }

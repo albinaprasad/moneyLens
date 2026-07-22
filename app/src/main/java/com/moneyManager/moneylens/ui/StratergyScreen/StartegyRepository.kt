@@ -4,8 +4,9 @@ import androidx.compose.ui.graphics.Color
 import com.moneyManager.moneylens.DataClass.ChartSlice
 import kotlinx.coroutines.flow.flow
 import java.util.concurrent.Flow
+import javax.inject.Inject
 
-class StrategyRepository() {
+class StrategyRepository @Inject constructor() {
     fun getAvailableStrategy(): List<String>{
         return  listOf(
             "Balanced - 50/30/20",

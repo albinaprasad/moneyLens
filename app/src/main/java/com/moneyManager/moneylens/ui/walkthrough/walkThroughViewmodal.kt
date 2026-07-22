@@ -17,7 +17,7 @@ class WalkThroughViewmodel @Inject constructor(
 ): ViewModel() {
     fun setWalkThroughCompleted() {
         viewModelScope.launch {
-            userPreference.setLaunchState(AppLaunchState.HOME)
+            userPreference.setLaunchState(AppLaunchState.STRATEGY)
         }
     }
 
