@@ -17,7 +17,7 @@ class SplashViewModal @Inject constructor(
 
     val launchState = userPreference.currentAppState.stateIn(
         viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = AppLaunchState.SPLASH
+        started = SharingStarted.WhileSubscribed(2000),
+        initialValue = AppLaunchState.WALKTHROUGH
     )
 }
