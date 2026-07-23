@@ -24,6 +24,7 @@ class StrategyScreenViewModal @Inject constructor(
 
     init {
         getStrategyData()
+        loadStrategyData(_uiState.value.selectedStrategy)
     }
 
   private fun getStrategyData() {
@@ -36,7 +37,6 @@ class StrategyScreenViewModal @Inject constructor(
     }
     fun onStrategySelected(newStrategy: String) {
         if (newStrategy == _uiState.value.selectedStrategy) return
-
         _uiState.update { it.copy(selectedStrategy = newStrategy) }
         loadStrategyData(newStrategy)
     }

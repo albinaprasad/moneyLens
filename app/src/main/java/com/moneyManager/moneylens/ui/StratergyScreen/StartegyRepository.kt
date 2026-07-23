@@ -2,17 +2,14 @@ package com.moneyManager.moneylens.ui.StratergyScreen
 
 import androidx.compose.ui.graphics.Color
 import com.moneyManager.moneylens.DataClass.ChartSlice
+import com.moneyManager.moneylens.enums.StrategyList
 import kotlinx.coroutines.flow.flow
 import java.util.concurrent.Flow
 import javax.inject.Inject
 
 class StrategyRepository @Inject constructor() {
     fun getAvailableStrategy(): List<String>{
-        return  listOf(
-            "Balanced - 50/30/20",
-            "Aggressive - 70/20/10",
-            "Conservative - 30/40/30"
-        )
+        return  StrategyList.getAvailableStrategies()
     }
 
      fun getStrategySlices(strategyName: String): List<ChartSlice> {

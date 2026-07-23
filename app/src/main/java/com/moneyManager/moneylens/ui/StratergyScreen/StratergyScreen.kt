@@ -66,6 +66,7 @@ fun StrategyScreen(
             .fillMaxWidth()
             .height(46.dp))
 
+        //pie chart
         CircularPieChart(uiState.slices, modifier = Modifier
             .weight(1f)
             .align(Alignment.CenterHorizontally))
@@ -88,6 +89,7 @@ fun StrategyScreen(
             .fillMaxWidth()
             .height(10.dp))
 
+        //Drop down
         CustomDropDown(
             options = uiState.availableStrategies,
             selectedOption = uiState.selectedStrategy,
@@ -100,6 +102,7 @@ fun StrategyScreen(
             .fillMaxWidth()
             .height(60.dp))
 
+        //blue button
         CommonButtonBlue("Continue") {
            coroutineScope.launch {
                viewModel.setStrategyScreenCompleted()
