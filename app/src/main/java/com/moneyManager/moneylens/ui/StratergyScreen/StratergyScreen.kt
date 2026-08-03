@@ -71,19 +71,6 @@ fun StrategyScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            text = "BUDGETING STRATEGY",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.sp
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
         // Dropdown
         CustomDropDown(
             options = uiState.availableStrategies,
@@ -91,7 +78,8 @@ fun StrategyScreen(
             onOptionSelected = { selected ->
                 viewModel.onStrategySelected(selected)
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            label = "BUDGETING STRATEGY"
         )
 
         Spacer(modifier = Modifier.height(48.dp))
