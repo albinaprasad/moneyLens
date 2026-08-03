@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,15 +28,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.moneyManager.moneylens.R
-import com.moneyManager.moneylens.ui.theme.primary_02
-import com.moneyManager.moneylens.ui.theme.primary_06
-import com.moneyManager.moneylens.ui.theme.white
 
 @Composable
 fun CustomDropDown(
@@ -44,7 +46,6 @@ fun CustomDropDown(
     modifier: Modifier = Modifier
 ){
     var expanded by rememberSaveable { mutableStateOf(false) }
-    var selectedOption by rememberSaveable { mutableStateOf(options[0]) }
     val arrowRotationAngle by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = tween(durationMillis = 400),
@@ -53,10 +54,10 @@ fun CustomDropDown(
     val interactionSource = remember { MutableInteractionSource() }
     var itemWidth by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current
+
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
             .wrapContentSize(Alignment.TopStart)
     ) {
         Row(
@@ -65,6 +66,8 @@ fun CustomDropDown(
                 .onGloballyPositioned { coordinates ->
                     itemWidth = with(density) { coordinates.size.width.toDp() }
                 }
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colorScheme.surface)
                 .clickable(
                     interactionSource = interactionSource,
                     indication = null
@@ -73,22 +76,26 @@ fun CustomDropDown(
                 }
                 .border(
                     width = 1.dp,
-                    color = primary_02,
-                    shape = RoundedCornerShape(8.dp)
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                    shape = MaterialTheme.shapes.medium
                 )
-                .padding(horizontal = 8.dp, vertical = 10.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = selectedOption,
-                color = primary_06
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyLarge
             )
 
             Image(
                 painter = painterResource(R.drawable.icon_down_arrow),
                 contentDescription = "Expand dropdown",
-                modifier = Modifier.rotate(arrowRotationAngle)
+                modifier = Modifier
+                    .size(20.dp)
+                    .rotate(arrowRotationAngle),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
             )
 
         }
@@ -96,23 +103,30 @@ fun CustomDropDown(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier
-                .background(color = white)
+                .background(color = MaterialTheme.colorScheme.surface)
                 .width(itemWidth)
-
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                    shape = RoundedCornerShape(8.dp)
+                )
         ) {
             options.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(text = option, color = primary_06) },
+                    text = { 
+                        Text(
+                            text = option, 
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = if (option == selectedOption) FontWeight.Bold else FontWeight.Normal
+                        ) 
+                    },
                     onClick = {
-                        selectedOption = option
                         onOptionSelected(option)
                         expanded = false
                     }
                 )
             }
         }
-
     }
-
 }
-

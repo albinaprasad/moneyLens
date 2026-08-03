@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,9 +27,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.moneyManager.moneylens.R
-import com.moneyManager.moneylens.ui.theme.primary_09
-import com.moneyManager.moneylens.ui.theme.secondary
-import com.moneyManager.moneylens.ui.theme.white
 import com.moneyManager.moneylens.ui.utils.DeviceOrientation
 import com.moneyManager.moneylens.ui.utils.LocalDeviceOrientation
 import com.moneyManager.moneylens.ui.walkthrough.data.WalkThroughPageData
@@ -48,54 +46,39 @@ fun walkThroughPages(page: WalkThroughPageData) {
 private fun PortraitWalkThroughPage(page: WalkThroughPageData) {
     Column(
         modifier = Modifier
-            .background(white)
-            .wrapContentHeight()
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(26.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-        )
         Image(
             painter = painterResource(R.drawable.walthrough),
-            contentDescription = "",
-            modifier = Modifier.size(254.dp, 254.dp)
+            contentDescription = null,
+            modifier = Modifier.size(280.dp)
         )
 
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(30.dp)
-        )
+        Spacer(modifier = Modifier.height(48.dp))
+
         Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
+            modifier = Modifier.fillMaxWidth(),
             text = page.title,
-            color = primary_09,
-            fontSize = 24.sp,
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp)
-        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
+            modifier = Modifier.fillMaxWidth(),
             text = page.description,
-            color = secondary,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Normal,
-            textAlign = TextAlign.Center
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            lineHeight = 24.sp
         )
-        Spacer(modifier = Modifier.height(30.dp))
     }
 }
 
@@ -104,47 +87,45 @@ private fun LandscapeWalkThroughPage(page: WalkThroughPageData) {
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(white)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 32.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
         Image(
             painter = painterResource(R.drawable.walthrough),
-            contentDescription = "",
+            contentDescription = null,
             modifier = Modifier
-                .fillMaxHeight(0.8f)
-                .weight(0.4f)
+                .fillMaxHeight(0.7f)
+                .weight(0.45f)
         )
 
-        Spacer(modifier = Modifier.width(24.dp))
+        Spacer(modifier = Modifier.width(32.dp))
 
         Column(
             modifier = Modifier
-                .weight(0.6f)
+                .weight(0.55f)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
+                modifier = Modifier.fillMaxWidth(),
                 text = page.title,
-                color = primary_09,
-                fontSize = 22.sp,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
             Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
+                modifier = Modifier.fillMaxWidth(),
                 text = page.description,
-                color = secondary,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                textAlign = TextAlign.Start
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Start,
+                lineHeight = 20.sp
             )
         }
     }
