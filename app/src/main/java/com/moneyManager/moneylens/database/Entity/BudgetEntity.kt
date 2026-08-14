@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.moneyManager.moneylens.enums.BudgetPeriod
 
 @Entity(
     tableName = "budgets",
@@ -23,5 +24,6 @@ data class Budget(
     val limitAmount: Double,
     val month: Int,          // 1-12
     val year: Int,           // 2026
+    val periodType: BudgetPeriod = BudgetPeriod.MONTHLY,
     val categoryId: Int
 )
