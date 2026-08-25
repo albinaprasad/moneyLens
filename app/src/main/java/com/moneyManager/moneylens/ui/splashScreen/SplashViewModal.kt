@@ -20,4 +20,10 @@ class SplashViewModal @Inject constructor(
         started = SharingStarted.WhileSubscribed(2000),
         initialValue = AppLaunchState.WALKTHROUGH
     )
+
+    // Reads the REAL persisted state — use this instead of launchState.value
+    // to avoid the async race where the animation ends before DataStore emits.
+    suspend fun getAppLaunchState(): AppLaunchState {
+        return userPreference.currentAppState.first()
+    }
 }

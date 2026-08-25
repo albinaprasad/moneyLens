@@ -27,25 +27,21 @@ class StrategyScreenViewModal @Inject constructor(
         loadStrategyData(_uiState.value.selectedStrategy)
     }
 
-  private fun getStrategyData() {
+    private fun getStrategyData() {
         val strategies = repository.getAvailableStrategy()
-        _uiState.update {
-            it.copy(
-                availableStrategies = strategies,
-            )
-        }
+        _uiState.update { it.copy(availableStrategies = strategies) }
     }
+
     fun onStrategySelected(newStrategy: String) {
         if (newStrategy == _uiState.value.selectedStrategy) return
         _uiState.update { it.copy(selectedStrategy = newStrategy) }
         loadStrategyData(newStrategy)
     }
+
     private fun loadStrategyData(strategy: String) {
         viewModelScope.launch {
             val chartSlices = repository.getStrategySlices(strategy)
-            _uiState.update {
-                it.copy(slices = chartSlices)
-            }
+            _uiState.update { it.copy(slices = chartSlices) }
         }
     }
 

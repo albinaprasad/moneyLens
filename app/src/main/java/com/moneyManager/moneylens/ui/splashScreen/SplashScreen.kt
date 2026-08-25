@@ -85,6 +85,10 @@ fun SplashScreen(onSplashFinished: (AppLaunchState) -> Unit) {
         val currentScreen = viewModal.launchState.collectAsStateWithLifecycle()
 
         LaunchedEffect(Unit) {
+            // Read the real persisted state BEFORE animating — prevents the race
+            // condition where animation ends before DataStore emits the first value.
+            val destination = viewModal.getAppLaunchState()
+
             logoScale.animateTo(
                 targetValue = 1f,
                 animationSpec = spring(
@@ -102,7 +106,7 @@ fun SplashScreen(onSplashFinished: (AppLaunchState) -> Unit) {
                 animationSpec = tween(300, easing = FastOutSlowInEasing)
             )
             delay(500)
-            onSplashFinished(currentScreen.value)
+            onSplashFinished(destination)
         }
 
         Image(
