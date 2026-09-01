@@ -21,4 +21,7 @@ sealed class AppScreens {
 
     @Serializable
     data object Profile: AppScreens()
+
+    @Serializable
+    data object SaveScreen: AppScreens()
 }
