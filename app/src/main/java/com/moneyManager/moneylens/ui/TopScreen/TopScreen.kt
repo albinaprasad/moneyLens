@@ -41,21 +41,23 @@ fun TopScreen(navController: NavHostController) {
 
     Scaffold(
         bottomBar = {
-            BottomBar(navController, bottomNavItems)
+            BottomBar(navController, bottomNavItems){
+
+            }
         },
         // floating button to add money
         floatingActionButton = {
             TopScreenFAB()
         }
     ) { padding ->
-        TopScreenContents(modifier = Modifier.padding(padding))
+        TopScreenContents()
     }
 
 }
 
 
 @Composable
-fun TopScreenContents(modifier: Modifier) {
+fun TopScreenContents() {
     Column(
         modifier = Modifier
             .fillMaxSize()

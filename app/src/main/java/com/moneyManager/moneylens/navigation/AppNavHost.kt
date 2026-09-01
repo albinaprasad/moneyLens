@@ -75,6 +75,10 @@ fun AppNavHost(navController: NavHostController) {
             TopScreen(navController)
         }
 
+        composable<AppScreens.TopScreen> {
+            TopScreen(navController)
+        }
+
         composable<AppScreens.StrategyScreen> {
              StrategyScreen{
                  navController.navigate(AppScreens.TopScreen) {

@@ -20,15 +20,18 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.moneyManager.moneylens.DataClass.BottomNavigationItems
 
 @Composable
 fun BottomBar(
     bottomNavController: NavHostController,
-    bottomNavItems: List<BottomNavigationItems>
+    bottomNavItems: List<BottomNavigationItems>,
+    onItemClick: (BottomNavigationItems) -> Unit
 ) {
     // Current selection state
     var selectedItem by remember { mutableIntStateOf(0) }
+    val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
 
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
@@ -45,7 +48,7 @@ fun BottomBar(
                 onClick = { 
                     selectedItem = index
                     // Navigation logic:
-                    // bottomNavController.navigate(item.name) 
+                    // bottomNavController.navigate(item.route)
                 },
                 interactionSource = remember { MutableInteractionSource() },
                 icon = {
