@@ -64,7 +64,7 @@ fun TopScreenContents(modifier: Modifier) {
 
         // Portrait: unchanged original layout
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.background)
                 .statusBarsPadding()

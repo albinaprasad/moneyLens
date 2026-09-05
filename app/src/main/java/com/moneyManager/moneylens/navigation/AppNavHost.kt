@@ -77,7 +77,7 @@ fun AppNavHost(navController: NavHostController) {
         }
 
         composable<AppScreens.SaveScreen> {
-            SavScreen()
+            SavScreen(navController)
         }
 
         composable<AppScreens.StrategyScreen> {
