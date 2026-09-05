@@ -1,5 +1,6 @@
 package com.moneyManager.moneylens.ui.SaveScreen
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,10 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,25 +27,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.moneyManager.moneylens.AnimationManager.AnimationManager.customFadingAnimation
-import com.moneyManager.moneylens.AnimationManager.AnimationManager.customScalingAnimation
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.moneyManager.moneylens.R
-import com.moneyManager.moneylens.navigation.AppScreens
-import com.moneyManager.moneylens.ui.TopScreen.TopBar
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
 
 @Composable
-fun SavScreen(navController: NavHostController) {
+fun SaveScreen(
+    navController: NavHostController,
+    viewModel: SaveViewmodal = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
     Scaffold(
         topBar = {
             CommonTopBar(
@@ -59,7 +63,7 @@ fun SavScreen(navController: NavHostController) {
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             ) {
-                Icon(painter = painterResource(R.drawable.ic_add), contentDescription = null)
+                Icon(Icons.Default.Save, contentDescription = null)
             }
         }
     ) { innerPadding ->
@@ -70,29 +74,65 @@ fun SavScreen(navController: NavHostController) {
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
-            // Top component stays fixed above the scrollable content
-            ExpenceIncomeBar()
+            //expence  or Income
+            ExpenceIncomeBar(
+                selectedType = uiState.type,
+                onTypeSelected = viewModel::onTypeSelected
+            )
+
+            DateTimeRow(
+                date = uiState.date,
+                time = uiState.time,
+                onDateSelected = viewModel::onDateSelected,
+                onTimeSelected = viewModel::onTimeSelected
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Only the cards section scrolls
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                SaveScreenCards()
-                SaveScreenCards()
-                SaveScreenCards()
+
+                AmountSection(
+                    amount = uiState.amount,
+                    onAmountChange = viewModel::onAmountChange
+                )
+
+                TransactionOptionItem(
+                    label = "Category",
+                    value = uiState.category,
+                    leadingIcon = Icons.Default.Category,
+                    onClick = {
+                        // category selection later
+                    }
+                )
+
+                TransactionOptionItem(
+                    label = "Payment mode",
+                    value = uiState.paymentMode,
+                    leadingIcon = Icons.Default.Payments,
+                    onClick = {
+                        // payment mode selection later
+                    }
+                )
+
+                // TODO: Category / Payment mode / Note UI go here later —
+                // uiState.category, uiState.paymentMode, uiState.note and
+                // viewModel.onCategorySelected/onPaymentModeSelected/onNoteChange
+                // are already wired and ready to bind.
             }
         }
     }
 }
 
 @Composable
-fun ExpenceIncomeBar(){
-    var selectedTab by remember { mutableStateOf(0) }
+fun ExpenceIncomeBar(
+    selectedType: TransactionType,
+    onTypeSelected: (TransactionType) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,10 +142,10 @@ fun ExpenceIncomeBar(){
         horizontalArrangement = Arrangement.spacedBy(
             8.dp,
             Alignment.CenterHorizontally
-        )        ) {
-        val tabs = listOf("Expense", "Income")
-        tabs.forEachIndexed { index, title ->
-            val isSelected = selectedTab == index
+        )
+    ) {
+        TransactionType.values().forEach { type ->
+            val isSelected = selectedType == type
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
@@ -113,12 +153,12 @@ fun ExpenceIncomeBar(){
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 TextButton(
-                    onClick = { selectedTab = index },
+                    onClick = { onTypeSelected(type) },
                     contentPadding = PaddingValues(0.dp),
                     modifier = Modifier.heightIn(min = 24.dp)
                 ) {
                     Text(
-                        title,
+                        type.label,
                         color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.labelLarge
                     )
