@@ -11,7 +11,7 @@ class BottomNavigationRepository @Inject constructor() {
             BottomNavigationItems("Home", R.drawable.home_ic, AppScreens.TopScreen),
             BottomNavigationItems("Charts", R.drawable.chart_ic, AppScreens.Charts),
             BottomNavigationItems("Wallet", R.drawable.wallet_ic, AppScreens.Wallet),
-            BottomNavigationItems("Profile", R.drawable.profile_circle_ic, AppScreens.Profile),
+            BottomNavigationItems("Settings", R.drawable.profile_circle_ic, AppScreens.SettingsScreen),
         )
     }
 }

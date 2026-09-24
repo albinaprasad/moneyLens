@@ -7,10 +7,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.moneyManager.moneylens.enums.AppLaunchState
+import com.moneyManager.moneylens.ui.SaveScreen.SaveScreen
+import com.moneyManager.moneylens.ui.Settings.SettingsScreen
 import com.moneyManager.moneylens.ui.StratergyScreen.StrategyScreen
 import com.moneyManager.moneylens.ui.TopScreen.TopScreen
 import com.moneyManager.moneylens.ui.splashScreen.SplashScreen
-import com.moneyManager.moneylens.ui.SaveScreen.SaveScreen
 import com.moneyManager.moneylens.ui.walkthrough.WalkThrough
 
 @Composable
@@ -47,11 +48,11 @@ fun AppNavHost(navController: NavHostController) {
         composable<AppScreens.Splash> {
             SplashScreen(onSplashFinished = { state ->
                 val destination = when (state) {
-                    AppLaunchState.WALKTHROUGH-> AppScreens.Walkthrough
-                    AppLaunchState.STRATEGY-> AppScreens.StrategyScreen
+                    AppLaunchState.WALKTHROUGH -> AppScreens.Walkthrough
+                    AppLaunchState.STRATEGY -> AppScreens.StrategyScreen
                     AppLaunchState.HOME -> AppScreens.TopScreen
                 }
-                
+
                 navController.navigate(destination) {
                     popUpTo<AppScreens.Splash> {
                         inclusive = true
@@ -82,14 +83,21 @@ fun AppNavHost(navController: NavHostController) {
 
 
         composable<AppScreens.StrategyScreen> {
-             StrategyScreen{
-                 navController.navigate(AppScreens.TopScreen) {
-                     popUpTo(navController.graph.id) {
-                         inclusive = true
-                     }
-                     launchSingleTop = true
-                 }
-             }
+            StrategyScreen {
+                navController.navigate(AppScreens.TopScreen) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+            }
+        }
+
+        composable<AppScreens.SettingsScreen> {
+            SettingsScreen(onNavigate = { route ->
+                navController.navigate(route)
+            }
+            )
         }
     }
 }

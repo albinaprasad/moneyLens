@@ -2,7 +2,6 @@ package com.moneyManager.moneylens.ui.Bottombar
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -15,13 +14,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.moneyManager.moneylens.DataClass.BottomNavigationItems
+import com.moneyManager.moneylens.navigation.AppScreens
 
 @Composable
 fun BottomBar(
@@ -48,7 +46,7 @@ fun BottomBar(
                 onClick = { 
                     selectedItem = index
                     // Navigation logic:
-                    // bottomNavController.navigate(item.route)
+                     bottomNavController.navigate(AppScreens.SettingsScreen)
                 },
                 interactionSource = remember { MutableInteractionSource() },
                 icon = {

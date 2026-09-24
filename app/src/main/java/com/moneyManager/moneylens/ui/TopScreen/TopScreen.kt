@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -41,6 +42,7 @@ fun TopScreen(navController: NavHostController) {
     val bottomNavItems by viewModel.bottomNavItems.collectAsState()
 
     Scaffold(
+        //bottom bar
         bottomBar = {
             BottomBar(navController, bottomNavItems){
 
@@ -51,7 +53,7 @@ fun TopScreen(navController: NavHostController) {
             TopScreenFAB(navController)
         }
     ) { padding ->
-        TopScreenContents()
+        TopScreenContents(modifier = Modifier)
     }
 
 }
@@ -93,6 +95,7 @@ fun TopLanscapeMode(modifier: Modifier) {
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
             .statusBarsPadding()
+            .navigationBarsPadding()
             .padding(horizontal = 16.dp)
     ) {
         // Left pane – TopBar + cards
