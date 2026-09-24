@@ -10,7 +10,7 @@ import com.moneyManager.moneylens.enums.AppLaunchState
 import com.moneyManager.moneylens.ui.StratergyScreen.StrategyScreen
 import com.moneyManager.moneylens.ui.TopScreen.TopScreen
 import com.moneyManager.moneylens.ui.splashScreen.SplashScreen
-import com.moneyManager.moneylens.ui.SaveScreen.SavScreen
+import com.moneyManager.moneylens.ui.SaveScreen.SaveScreen
 import com.moneyManager.moneylens.ui.walkthrough.WalkThrough
 
 @Composable
@@ -77,7 +77,7 @@ fun AppNavHost(navController: NavHostController) {
         }
 
         composable<AppScreens.SaveScreen> {
-            SavScreen()
+            SaveScreen(navController)
         }
 
 
