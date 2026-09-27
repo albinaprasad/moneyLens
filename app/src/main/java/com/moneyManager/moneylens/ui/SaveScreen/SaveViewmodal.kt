@@ -1,21 +1,65 @@
 package com.moneyManager.moneylens.ui.SaveScreen
 
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.moneyManager.moneylens.database.Entity.Category
+import com.moneyManager.moneylens.ui.SaveScreen.repo.SaveScreenRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
 
-@HiltViewModel
-class SaveViewmodal @Inject constructor() : ViewModel() {
 
-    private val _uiState = MutableStateFlow(AddTransactionState())
+data class BottomSheetUiState(
+    val categories: List<Category> = emptyList(),
+    val showCategorySheet: Boolean = false,
+)
+@HiltViewModel
+class SaveViewmodal @Inject constructor(
+    private val saveRepo: SaveScreenRepository
+) : ViewModel() {
+
+    private var _uiState = MutableStateFlow(AddTransactionState())
     val uiState: StateFlow<AddTransactionState> = _uiState.asStateFlow()
 
+    private val _bottomSheetUiState = MutableStateFlow(BottomSheetUiState())
+    val bottomSheetUiState = _bottomSheetUiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            saveRepo.initializeCategories()
+            getCategoriesToShow()
+        }
+    }
+
+    fun openCategorySheet() {
+        _bottomSheetUiState.update {
+            it.copy(showCategorySheet = true)
+        }
+    }
+
+    fun closeCategorySheet() {
+        _bottomSheetUiState.update {
+            it.copy(showCategorySheet = false)
+        }
+    }
+
+    suspend  fun getCategoriesToShow(){
+        saveRepo.getCategories().collect { categories ->
+            _bottomSheetUiState.update {
+                it.copy(categories = categories)
+            }
+        }
+    }
+    fun getCategoryIcon(icon: String): ImageVector {
+       return saveRepo.getCategoryIcon(icon)
+    }
     fun onTypeSelected(type: TransactionType) {
         _uiState.update { it.copy(type = type) }
     }

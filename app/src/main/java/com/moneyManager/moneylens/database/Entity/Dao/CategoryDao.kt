@@ -29,4 +29,13 @@ interface CategoryDao {
 
     @Query("SELECT * FROM categories WHERE type = :type ORDER BY name ASC")
     fun getByType(type: String): Flow<List<Category>>
+
+    @Insert
+    suspend fun insertAll(categories: List<Category>)
+
+    @Query("SELECT COUNT(*) FROM categories")
+    suspend fun getCategoryCount(): Int
+
+    @Query("SELECT * FROM categories")
+    fun getAllCategories(): Flow<List<Category>>
 }

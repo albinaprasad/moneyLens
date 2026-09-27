@@ -1,16 +1,13 @@
 package com.moneyManager.moneylens.ui.SaveScreen
 
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -20,9 +17,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,20 +31,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.moneyManager.moneylens.R
+import com.moneyManager.moneylens.ui.SaveScreen.CategoryBottomSheet.CategorySheet
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SaveScreen(
     navController: NavHostController,
     viewModel: SaveViewmodal = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
+    val bottomSheetUiState by viewModel.bottomSheetUiState.collectAsState()
     Scaffold(
         topBar = {
             CommonTopBar(
@@ -80,15 +79,6 @@ fun SaveScreen(
                 onTypeSelected = viewModel::onTypeSelected
             )
 
-            DateTimeRow(
-                date = uiState.date,
-                time = uiState.time,
-                onDateSelected = viewModel::onDateSelected,
-                onTimeSelected = viewModel::onTimeSelected
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -96,17 +86,26 @@ fun SaveScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
+                DateTimeRow(
+                    date = uiState.date,
+                    time = uiState.time,
+                    onDateSelected = viewModel::onDateSelected,
+                    onTimeSelected = viewModel::onTimeSelected
+                )
+
                 AmountSection(
                     amount = uiState.amount,
-                    onAmountChange = viewModel::onAmountChange
+                    onAmountChange = viewModel::onAmountChange,
+                    viewModel = viewModel
+
                 )
 
                 TransactionOptionItem(
                     label = "Category",
                     value = uiState.category,
                     leadingIcon = Icons.Default.Category,
-                    onClick = {
-                        // category selection later
+                            onClick = {
+                        viewModel.openCategorySheet()
                     }
                 )
 
@@ -114,7 +113,7 @@ fun SaveScreen(
                     label = "Payment mode",
                     value = uiState.paymentMode,
                     leadingIcon = Icons.Default.Payments,
-                    onClick = {
+                            onClick = {
                         // payment mode selection later
                     }
                 )
@@ -124,6 +123,25 @@ fun SaveScreen(
                 // viewModel.onCategorySelected/onPaymentModeSelected/onNoteChange
                 // are already wired and ready to bind.
             }
+        }
+    }
+
+    if (bottomSheetUiState.showCategorySheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                viewModel.closeCategorySheet()
+            }
+        ) {
+            CategorySheet(
+                viewmodal = viewModel,
+                categories = bottomSheetUiState.categories,
+                onEditClick = {
+                    // later
+                },
+                onCloseClick = {
+                    viewModel.closeCategorySheet()
+                }
+            )
         }
     }
 }

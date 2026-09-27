@@ -10,5 +10,6 @@ data class Category(
     val name: String,      // "Food", "Transport", "Salary"
     val icon: String,      // icon identifier
     val type: String,      // "INCOME" or "EXPENSE"
-    val color: Int         // Color as Int (e.g. Color.toArgb())
+    val color: Int ,        // Color as Int (e.g. Color.toArgb())
+    val isDefault: Boolean  // true = built-in, false = user-created
 )
