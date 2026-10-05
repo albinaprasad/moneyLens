@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.moneyManager.moneylens.ui.SaveScreen.CategoryBottomSheet.AccountSheet
 import com.moneyManager.moneylens.ui.SaveScreen.CategoryBottomSheet.CategorySheet
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
 
@@ -57,7 +59,7 @@ fun SaveScreen(
                 onClick = {
                     // save to db
                 },
-                modifier = Modifier,
+                modifier = Modifier.imePadding(),
                 shape = RoundedCornerShape(12.dp),
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -104,7 +106,7 @@ fun SaveScreen(
                     label = "Category",
                     value = uiState.category,
                     leadingIcon = Icons.Default.Category,
-                            onClick = {
+                    onClick = {
                         viewModel.openCategorySheet()
                     }
                 )
@@ -113,8 +115,16 @@ fun SaveScreen(
                     label = "Payment mode",
                     value = uiState.paymentMode,
                     leadingIcon = Icons.Default.Payments,
-                            onClick = {
+                    onClick = {
                         // payment mode selection later
+                        viewModel.openAccountSheet()
+                    }
+                )
+
+                NoteSection(
+                    note = uiState.note,
+                    onNoteChange = { note ->
+                        viewModel.onNoteChange(note)
                     }
                 )
 
@@ -140,6 +150,25 @@ fun SaveScreen(
                 },
                 onCloseClick = {
                     viewModel.closeCategorySheet()
+                }
+            )
+        }
+    }
+
+    if (bottomSheetUiState.showAccountSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                viewModel.closeAccountSheet()
+            }
+        ) {
+            AccountSheet(
+                viewmodal = viewModel,
+                accounts = bottomSheetUiState.accounts,
+                onEditClick = {
+                    // later
+                },
+                onCloseClick = {
+                    viewModel.closeAccountSheet()
                 }
             )
         }

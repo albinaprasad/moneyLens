@@ -3,6 +3,7 @@ package com.moneyManager.moneylens.ui.SaveScreen
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.moneyManager.moneylens.database.Entity.Account
 import com.moneyManager.moneylens.database.Entity.Category
 import com.moneyManager.moneylens.ui.SaveScreen.repo.SaveScreenRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,8 +19,12 @@ import javax.inject.Inject
 
 data class BottomSheetUiState(
     val categories: List<Category> = emptyList(),
+    val accounts: List<Account> = emptyList(),
+
     val showCategorySheet: Boolean = false,
+    val showAccountSheet: Boolean = false
 )
+
 @HiltViewModel
 class SaveViewmodal @Inject constructor(
     private val saveRepo: SaveScreenRepository
@@ -34,13 +39,24 @@ class SaveViewmodal @Inject constructor(
     init {
         viewModelScope.launch {
             saveRepo.initializeCategories()
+            saveRepo.initializeAccounts()
+        }
+        viewModelScope.launch {
             getCategoriesToShow()
+        }
+        viewModelScope.launch {
+            getAccountsToShow()
         }
     }
 
     fun openCategorySheet() {
         _bottomSheetUiState.update {
             it.copy(showCategorySheet = true)
+        }
+    }
+    fun openAccountSheet() {
+        _bottomSheetUiState.update {
+            it.copy(showAccountSheet = true)
         }
     }
 
@@ -50,6 +66,11 @@ class SaveViewmodal @Inject constructor(
         }
     }
 
+    fun closeAccountSheet() {
+        _bottomSheetUiState.update {
+            it.copy(showAccountSheet = false)
+        }
+    }
     suspend  fun getCategoriesToShow(){
         saveRepo.getCategories().collect { categories ->
             _bottomSheetUiState.update {
@@ -57,8 +78,19 @@ class SaveViewmodal @Inject constructor(
             }
         }
     }
+
+    suspend fun getAccountsToShow(){
+        saveRepo.getAccounts().collect { accounts ->
+            _bottomSheetUiState.update {
+                it.copy(accounts =accounts)
+            }
+        }
+    }
     fun getCategoryIcon(icon: String): ImageVector {
        return saveRepo.getCategoryIcon(icon)
+    }
+    fun getAccountIcon(icon: String): ImageVector {
+       return saveRepo.getAccountIcon(icon)
     }
     fun onTypeSelected(type: TransactionType) {
         _uiState.update { it.copy(type = type) }

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,17 +28,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.moneyManager.moneylens.database.Entity.Category
+import com.moneyManager.moneylens.database.Entity.Account
 import com.moneyManager.moneylens.ui.SaveScreen.SaveViewmodal
 
 @Composable
-fun CategorySheet(
+fun AccountSheet(
     viewmodal: SaveViewmodal,
-    categories: List<Category>,
+    accounts: List<Account>,
     onEditClick: () -> Unit,
     onCloseClick: () -> Unit
 ) {
@@ -48,13 +46,14 @@ fun CategorySheet(
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 12.dp)
     ) {
+
         // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Select Category",
+                text = "Select Account",
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.titleMedium
             )
@@ -76,7 +75,7 @@ fun CategorySheet(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Grid
+        // Accounts
         LazyVerticalGrid(
             columns = GridCells.Fixed(4),
             modifier = Modifier.fillMaxWidth(),
@@ -84,11 +83,11 @@ fun CategorySheet(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(categories) { category ->
+            items(accounts) { account ->
+
                 Surface(
                     onClick = {
-                        // Handle category selection
-                        viewmodal.onCategorySelected(category.name)
+                        viewmodal.onPaymentModeSelected(account.name)
                     },
                     shape = RoundedCornerShape(16.dp),
                     color = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -96,23 +95,27 @@ fun CategorySheet(
                 ) {
                     Column(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .fillMaxWidth()
                             .height(100.dp)
                             .padding(8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
+
+                        // Account icon
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(Color(category.color)),
+                                .background(
+                                    MaterialTheme.colorScheme.primaryContainer
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = viewmodal.getCategoryIcon(category.icon),
-                                contentDescription = category.name,
-                                tint = Color.White,
+                                imageVector = viewmodal.getAccountIcon(account.icon),
+                                contentDescription = account.name,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -120,7 +123,7 @@ fun CategorySheet(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = category.name,
+                            text = account.name,
                             style = MaterialTheme.typography.labelSmall,
                             textAlign = TextAlign.Center,
                             maxLines = 1,

@@ -29,4 +29,13 @@ interface AccountDao {
 
     @Query("UPDATE accounts SET balance = :newBalance WHERE id = :id")
     suspend fun updateBalance(id: Int, newBalance: Double)
+
+    @Insert
+    suspend fun insertAll(categories: List<Account>)
+
+    @Query("SELECT COUNT(*) FROM accounts")
+    suspend fun getAccountCount(): Int
+
+    @Query("SELECT * FROM accounts")
+    fun getAllAccounts(): Flow<List<Account>>
 }

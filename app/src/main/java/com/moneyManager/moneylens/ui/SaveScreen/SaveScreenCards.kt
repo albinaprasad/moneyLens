@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +31,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -172,3 +175,85 @@ fun TransactionOptionItem(
     }
 }
 
+@Composable
+fun NoteSection(
+    note: String,
+    onNoteChange: (String) -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+            )
+            .clickable {
+                focusRequester.requestFocus()
+            }
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+
+        // Leading icon
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.Notes,
+            contentDescription = "Note",
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .size(28.dp)
+                .padding(top = 2.dp)
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+
+            Text(
+                text = "Note",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(3.dp))
+
+            BasicTextField(
+                value = note,
+                onValueChange = onNoteChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Default
+                ),
+                minLines = 1,
+                maxLines = 4,
+                cursorBrush = SolidColor(
+                    MaterialTheme.colorScheme.primary
+                ),
+                decorationBox = { innerTextField ->
+
+                    if (note.isEmpty()) {
+                        Text(
+                            text = "Add a note",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = 0.6f
+                            )
+                        )
+                    }
+
+                    innerTextField()
+                }
+            )
+        }
+    }
+}

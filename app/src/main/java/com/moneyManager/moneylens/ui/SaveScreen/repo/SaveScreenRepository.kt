@@ -3,14 +3,18 @@ package com.moneyManager.moneylens.ui.SaveScreen.repo
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.automirrored.filled.ShowChart
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.Savings
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Spa
@@ -18,7 +22,9 @@ import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.moneyManager.moneylens.database.Entity.Account
 import com.moneyManager.moneylens.database.Entity.Category
+import com.moneyManager.moneylens.database.Entity.Dao.AccountDao
 import com.moneyManager.moneylens.database.Entity.Dao.CategoryDao
 import com.moneyManager.moneylens.ui.theme.CategoryBills
 import com.moneyManager.moneylens.ui.theme.CategoryEducation
@@ -37,9 +43,12 @@ import com.moneyManager.moneylens.ui.theme.CategoryTravel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
-class SaveScreenRepository@Inject constructor( private val categoryDao: CategoryDao) {
+class SaveScreenRepository @Inject constructor(
+    private val categoryDao: CategoryDao,
+    private val accountDao: AccountDao
+) {
 
-    fun  getDefaultCategories() = listOf(
+    fun getDefaultCategories() = listOf(
         Category(
             name = "Others",
             icon = "MoreHoriz",
@@ -159,8 +168,34 @@ class SaveScreenRepository@Inject constructor( private val categoryDao: Category
             else -> Icons.Default.Category
         }
     }
+    fun getAccountIcon(icon: String): ImageVector {
+        return when (icon) {
+            "cash" -> Icons.Default.Payments
+            "bank" -> Icons.Default.AccountBalance
+            "savings" -> Icons.Default.Savings
+            "wallet" -> Icons.Default.AccountBalanceWallet
+            else -> Icons.Default.AccountBalanceWallet
+        }
+    }
 
 
+    val defaultAccounts = listOf(
+        Account(
+            name = "Cash",
+            balance = 0.0,
+            icon = "cash"
+        ),
+        Account(
+            name = "Bank",
+            balance = 0.0,
+            icon = "bank"
+        ),
+        Account(
+            name = "Savings",
+            balance = 0.0,
+            icon = "savings"
+        )
+    )
 
     suspend fun initializeCategories() {
         if (categoryDao.getCategoryCount() == 0) {
@@ -172,5 +207,14 @@ class SaveScreenRepository@Inject constructor( private val categoryDao: Category
         return categoryDao.getAllCategories()
     }
 
+    suspend fun initializeAccounts() {
+        if (accountDao.getAccountCount() == 0) {
+            accountDao.insertAll(defaultAccounts)
+        }
+    }
+
+    fun getAccounts(): Flow<List<Account>> {
+        return accountDao.getAllAccounts()
+    }
 
 }
