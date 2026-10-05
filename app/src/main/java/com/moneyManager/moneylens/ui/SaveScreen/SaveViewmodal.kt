@@ -123,5 +123,11 @@ class SaveViewmodal @Inject constructor(
         _uiState.update { it.copy(time = time) }
     }
 
+    fun saveTransaction(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            saveRepo.saveTransaction(_uiState.value)
+            onSuccess()
+        }
+    }
 
 }

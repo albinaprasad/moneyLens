@@ -26,6 +26,9 @@ import com.moneyManager.moneylens.database.Entity.Account
 import com.moneyManager.moneylens.database.Entity.Category
 import com.moneyManager.moneylens.database.Entity.Dao.AccountDao
 import com.moneyManager.moneylens.database.Entity.Dao.CategoryDao
+import com.moneyManager.moneylens.database.Entity.Dao.TransactionDao
+import com.moneyManager.moneylens.database.Entity.Transaction
+import com.moneyManager.moneylens.ui.SaveScreen.AddTransactionState
 import com.moneyManager.moneylens.ui.theme.CategoryBills
 import com.moneyManager.moneylens.ui.theme.CategoryEducation
 import com.moneyManager.moneylens.ui.theme.CategoryEntertainment
@@ -42,10 +45,13 @@ import com.moneyManager.moneylens.ui.theme.CategoryTaxes
 import com.moneyManager.moneylens.ui.theme.CategoryTravel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 class SaveScreenRepository @Inject constructor(
     private val categoryDao: CategoryDao,
-    private val accountDao: AccountDao
+    private val accountDao: AccountDao,
+    private val transactionDao: TransactionDao
 ) {
 
     fun getDefaultCategories() = listOf(
@@ -217,4 +223,24 @@ class SaveScreenRepository @Inject constructor(
         return accountDao.getAllAccounts()
     }
 
+    suspend fun saveTransaction(state: AddTransactionState) {
+        val category = categoryDao.getByName(state.category)
+        val account = accountDao.getByName(state.paymentMode)
+            ?: throw IllegalStateException("Account '${state.paymentMode}' not found")
+
+        val epochMillis = LocalDateTime.of(state.date, state.time)
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
+
+        val transaction = Transaction(
+            amount = state.amount.toDoubleOrNull() ?: 0.0,
+            type = state.type.name,
+            note = state.note,
+            date = epochMillis,
+            categoryId = category?.id,
+            accountId = account.id
+        )
+        transactionDao.insert(transaction)
+    }
 }

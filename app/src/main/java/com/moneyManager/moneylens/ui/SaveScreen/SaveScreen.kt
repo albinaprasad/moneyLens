@@ -57,7 +57,9 @@ fun SaveScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    // save to db
+                    viewModel.saveTransaction {
+                        navController.popBackStack()
+                    }
                 },
                 modifier = Modifier.imePadding(),
                 shape = RoundedCornerShape(12.dp),
@@ -128,10 +130,6 @@ fun SaveScreen(
                     }
                 )
 
-                // TODO: Category / Payment mode / Note UI go here later —
-                // uiState.category, uiState.paymentMode, uiState.note and
-                // viewModel.onCategorySelected/onPaymentModeSelected/onNoteChange
-                // are already wired and ready to bind.
             }
         }
     }

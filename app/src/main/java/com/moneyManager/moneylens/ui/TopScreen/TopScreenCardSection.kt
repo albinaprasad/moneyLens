@@ -15,10 +15,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import java.text.NumberFormat
+import java.util.Locale
+
+private fun formatCurrency(amount: Double): String {
+    val formatter = NumberFormat.getNumberInstance(Locale.US)
+    return if (amount < 0) {
+        "-₹${formatter.format(-amount.toLong())}"
+    } else {
+        "₹${formatter.format(amount.toLong())}"
+    }
+}
 
 @Composable
-fun TopScreenCardSection() {
+fun TopScreenCardSection(
+    totalBalance: Double = 0.0,
+    totalIncome: Double = 0.0,
+    totalExpenses: Double = 0.0
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -26,7 +40,7 @@ fun TopScreenCardSection() {
     ) {
         InfoCard(
             title = "Total Balance",
-            value = "₹45,200",
+            value = formatCurrency(totalBalance),
             modifier = Modifier
         )
         
@@ -38,13 +52,13 @@ fun TopScreenCardSection() {
         ) {
             InfoCard(
                 title = "Income",
-                value = "₹12,500",
+                value = formatCurrency(totalIncome),
                 modifier = Modifier.weight(1f)
             )
 
             InfoCard(
                 title = "Expenses",
-                value = "₹8,420",
+                value = formatCurrency(totalExpenses),
                 modifier = Modifier.weight(1f)
             )
         }
@@ -82,6 +96,10 @@ fun InfoCard(title: String, value: String, modifier: Modifier) {
 @Composable
 fun previewCardSection() {
     Column(modifier = Modifier.padding(16.dp)) {
-        TopScreenCardSection()
+        TopScreenCardSection(
+            totalBalance = 45200.0,
+            totalIncome = 12500.0,
+            totalExpenses = 8420.0
+        )
     }
 }

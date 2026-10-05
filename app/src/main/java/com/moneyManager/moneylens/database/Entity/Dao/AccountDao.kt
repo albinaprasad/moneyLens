@@ -38,4 +38,7 @@ interface AccountDao {
 
     @Query("SELECT * FROM accounts")
     fun getAllAccounts(): Flow<List<Account>>
+
+    @Query("SELECT * FROM accounts WHERE name = :name LIMIT 1")
+    suspend fun getByName(name: String): Account?
 }

@@ -53,17 +53,32 @@ fun TopScreen(navController: NavHostController) {
             TopScreenFAB(navController)
         }
     ) { padding ->
-        TopScreenContents(modifier = Modifier)
+        TopScreenContents(
+            viewModel = viewModel,
+            modifier = Modifier.padding(padding)
+        )
     }
 
 }
 
 
 @Composable
-fun TopScreenContents(modifier: Modifier) {
+fun TopScreenContents(
+    viewModel: TopViewModal,
+    modifier: Modifier = Modifier
+) {
+    val totalBalance by viewModel.totalBalance.collectAsState()
+    val totalIncome by viewModel.totalIncome.collectAsState()
+    val totalExpenses by viewModel.totalExpenses.collectAsState()
+
     if (isLandscape()) {
         // Landscape: two-pane side-by-side layout
-       TopLanscapeMode(modifier)
+        TopLanscapeMode(
+            totalBalance = totalBalance,
+            totalIncome = totalIncome,
+            totalExpenses = totalExpenses,
+            modifier = modifier
+        )
     } else {
 
         // Portrait: unchanged original layout
@@ -79,7 +94,11 @@ fun TopScreenContents(modifier: Modifier) {
             TopBar()
 
             // Cards Section
-            TopScreenCardSection()
+            TopScreenCardSection(
+                totalBalance = totalBalance,
+                totalIncome = totalIncome,
+                totalExpenses = totalExpenses
+            )
 
             // Budget Progress Section
             BudgetProgressCard()
@@ -89,7 +108,12 @@ fun TopScreenContents(modifier: Modifier) {
 
 
 @Composable
-fun TopLanscapeMode(modifier: Modifier) {
+fun TopLanscapeMode(
+    totalBalance: Double,
+    totalIncome: Double,
+    totalExpenses: Double,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxSize()
@@ -107,7 +131,11 @@ fun TopLanscapeMode(modifier: Modifier) {
                 .verticalScroll(rememberScrollState())
         ) {
             TopBar()
-            TopScreenCardSection()
+            TopScreenCardSection(
+                totalBalance = totalBalance,
+                totalIncome = totalIncome,
+                totalExpenses = totalExpenses
+            )
         }
 
         // Right pane – budget progress
