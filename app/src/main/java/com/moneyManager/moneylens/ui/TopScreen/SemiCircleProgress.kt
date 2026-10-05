@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
@@ -69,6 +70,12 @@ fun BudgetProgressCard(
     val limitStr = formatCurrency(currentLimit)
     val remainingStr = formatCurrency(remainingAmount)
 
+    val accentColor = if (selectedTab == 0) {
+        MaterialTheme.colorScheme.primary       // Monthly
+    } else {
+        MaterialTheme.colorScheme.tertiary      // Annual
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -93,7 +100,10 @@ fun BudgetProgressCard(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
+                        .background(
+                            if (isSelected) accentColor
+                            else Color.Transparent
+                        )
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     TextButton(
@@ -103,7 +113,13 @@ fun BudgetProgressCard(
                     ) {
                         Text(
                             title,
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = if (isSelected)
+                                if (selectedTab == 0)
+                                    MaterialTheme.colorScheme.onPrimary
+                                else
+                                    MaterialTheme.colorScheme.onTertiary
+                            else
+                                MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.labelLarge
                         )
                     }
@@ -123,7 +139,7 @@ fun BudgetProgressCard(
             contentAlignment = Alignment.BottomCenter
         ) {
             val trackColor = MaterialTheme.colorScheme.surfaceVariant
-            val progressColor = MaterialTheme.colorScheme.primary
+            val progressColor = accentColor
             
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val strokeWidth = 14.dp.toPx()
@@ -187,7 +203,7 @@ fun BudgetProgressCard(
                         modifier = Modifier
                             .size(10.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(MaterialTheme.colorScheme.primary)
+                            .background(accentColor)
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
@@ -218,7 +234,7 @@ fun BudgetProgressCard(
                         modifier = Modifier
                             .size(10.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .background(accentColor)
                     )
                 }
                 Text(
