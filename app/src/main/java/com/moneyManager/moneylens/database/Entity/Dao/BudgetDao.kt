@@ -29,4 +29,10 @@ interface BudgetDao {
 
     @Query("SELECT * FROM budgets WHERE categoryId = :categoryId AND month = :month AND year = :year")
     fun getByCategoryAndMonth(categoryId: Int, month: Int, year: Int): Flow<Budget?>
+
+    @Query("SELECT SUM(limitAmount) FROM budgets WHERE month = :month AND year = :year")
+    fun getTotalLimitByMonthAndYear(month: Int, year: Int): Flow<Double?>
+
+    @Query("SELECT SUM(limitAmount) FROM budgets WHERE year = :year")
+    fun getTotalLimitByYear(year: Int): Flow<Double?>
 }

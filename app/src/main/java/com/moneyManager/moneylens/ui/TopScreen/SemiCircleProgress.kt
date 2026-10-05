@@ -2,9 +2,21 @@ package com.moneyManager.moneylens.ui.TopScreen
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,22 +32,42 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import com.moneyManager.moneylens.R
+
+private fun formatCurrency(amount: Double): String {
+    val formatter = java.text.NumberFormat.getNumberInstance(java.util.Locale.US)
+    return if (amount < 0) {
+        "-₹${formatter.format(-amount.toLong())}"
+    } else {
+        "₹${formatter.format(amount.toLong())}"
+    }
+}
 
 @Composable
 fun BudgetProgressCard(
     modifier: Modifier = Modifier,
-    progress: Float = 0.56f,
-    spent: String = "₹1,013",
-    limit: String = "₹1,800",
-    remaining: String = "₹787"
+    monthlySpent: Double = 0.0,
+    monthlyLimit: Double = 0.0,
+    annualSpent: Double = 0.0,
+    annualLimit: Double = 0.0
 ) {
     var selectedTab by remember { mutableStateOf(0) }
+
+    val currentSpent = if (selectedTab == 0) monthlySpent else annualSpent
+    val currentLimit = if (selectedTab == 0) monthlyLimit else annualLimit
+
+    val remainingAmount = maxOf(0.0, currentLimit - currentSpent)
+    val progress = if (currentLimit > 0) {
+        (currentSpent / currentLimit).toFloat().coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+
+    val spentStr = formatCurrency(currentSpent)
+    val limitStr = formatCurrency(currentLimit)
+    val remainingStr = formatCurrency(remainingAmount)
 
     Column(
         modifier = modifier
@@ -132,7 +164,7 @@ fun BudgetProgressCard(
                     letterSpacing = 1.sp
                 )
                 Text(
-                    remaining,
+                    remainingStr,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Bold
@@ -159,7 +191,7 @@ fun BudgetProgressCard(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        spent,
+                        spentStr,
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
@@ -176,7 +208,7 @@ fun BudgetProgressCard(
             Column(horizontalAlignment = Alignment.End) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        limit,
+                        limitStr,
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold

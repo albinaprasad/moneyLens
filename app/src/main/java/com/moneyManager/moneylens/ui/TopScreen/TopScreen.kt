@@ -4,9 +4,11 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -70,6 +72,9 @@ fun TopScreenContents(
     val totalBalance by viewModel.totalBalance.collectAsState()
     val totalIncome by viewModel.totalIncome.collectAsState()
     val totalExpenses by viewModel.totalExpenses.collectAsState()
+    val annualExpenses by viewModel.annualExpenses.collectAsState()
+    val monthlyBudgetLimit by viewModel.monthlyBudgetLimit.collectAsState()
+    val annualBudgetLimit by viewModel.annualBudgetLimit.collectAsState()
 
     if (isLandscape()) {
         // Landscape: two-pane side-by-side layout
@@ -77,6 +82,9 @@ fun TopScreenContents(
             totalBalance = totalBalance,
             totalIncome = totalIncome,
             totalExpenses = totalExpenses,
+            annualExpenses = annualExpenses,
+            monthlyBudgetLimit = monthlyBudgetLimit,
+            annualBudgetLimit = annualBudgetLimit,
             modifier = modifier
         )
     } else {
@@ -101,7 +109,13 @@ fun TopScreenContents(
             )
 
             // Budget Progress Section
-            BudgetProgressCard()
+            BudgetProgressCard(
+                monthlySpent = totalExpenses,
+                monthlyLimit = monthlyBudgetLimit,
+                annualSpent = annualExpenses,
+                annualLimit = annualBudgetLimit
+            )
+            Spacer(Modifier.height(55.dp))
         }
     }
 }
@@ -112,6 +126,9 @@ fun TopLanscapeMode(
     totalBalance: Double,
     totalIncome: Double,
     totalExpenses: Double,
+    annualExpenses: Double,
+    monthlyBudgetLimit: Double,
+    annualBudgetLimit: Double,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -146,7 +163,13 @@ fun TopLanscapeMode(
                 .padding(start = 8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            BudgetProgressCard(modifier = Modifier.fillMaxWidth())
+            BudgetProgressCard(
+                modifier = Modifier.fillMaxWidth(),
+                monthlySpent = totalExpenses,
+                monthlyLimit = monthlyBudgetLimit,
+                annualSpent = annualExpenses,
+                annualLimit = annualBudgetLimit
+            )
         }
     }
 }
