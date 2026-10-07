@@ -15,7 +15,6 @@ import javax.inject.Inject
 
 class SettingsRepository @Inject constructor() {
 
-
     fun getSettingsCardOptions():List<SettingsCardOptionItem>{
           return listOf(
               SettingsCardOptionItem("settings", Icons.Outlined.Settings, SettingsScreen),

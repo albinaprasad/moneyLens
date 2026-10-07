@@ -94,7 +94,6 @@ fun TopScreenContents(
             modifier = modifier
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.background)
-                .statusBarsPadding()
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
