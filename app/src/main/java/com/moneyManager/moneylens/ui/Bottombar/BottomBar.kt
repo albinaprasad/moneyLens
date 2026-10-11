@@ -46,7 +46,7 @@ fun BottomBar(
                 onClick = { 
                     selectedItem = index
                     // Navigation logic:
-                     bottomNavController.navigate(AppScreens.SettingsScreen)
+                     bottomNavController.navigate(AppScreens.HistoryScreen)
                 },
                 interactionSource = remember { MutableInteractionSource() },
                 icon = {

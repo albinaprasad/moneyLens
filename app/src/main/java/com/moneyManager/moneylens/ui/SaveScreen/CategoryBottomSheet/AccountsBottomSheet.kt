@@ -88,6 +88,7 @@ fun AccountSheet(
                 Surface(
                     onClick = {
                         viewmodal.onPaymentModeSelected(account.name)
+                        onCloseClick()
                     },
                     shape = RoundedCornerShape(16.dp),
                     color = MaterialTheme.colorScheme.surfaceContainerLow,

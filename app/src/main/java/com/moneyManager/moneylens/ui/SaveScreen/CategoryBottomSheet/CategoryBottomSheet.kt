@@ -89,6 +89,7 @@ fun CategorySheet(
                     onClick = {
                         // Handle category selection
                         viewmodal.onCategorySelected(category.name)
+                        onCloseClick()
                     },
                     shape = RoundedCornerShape(16.dp),
                     color = MaterialTheme.colorScheme.surfaceContainerLow,
