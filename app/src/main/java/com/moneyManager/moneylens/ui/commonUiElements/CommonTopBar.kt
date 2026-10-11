@@ -45,7 +45,7 @@ fun CommonTopBar(
                 modifier = Modifier
                     .size(48.dp)
                     .clickable { onStartClick() }
-                    .padding(12.dp),
+                    .padding(8.dp),
                 painter = painterResource(R.drawable.icon_back_btn),
                 contentDescription = "Back",
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
