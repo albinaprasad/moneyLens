@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ElevatedCard
@@ -476,7 +475,7 @@ private fun SegmentedSelector(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(CircleShape)
+            .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
             .padding(4.dp)
     ) {
@@ -486,7 +485,7 @@ private fun SegmentedSelector(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(CircleShape)
+                    .clip(RoundedCornerShape(8.dp))
                     .background(
                         if (isSelected) MaterialTheme.colorScheme.primary
                         else Color.Transparent

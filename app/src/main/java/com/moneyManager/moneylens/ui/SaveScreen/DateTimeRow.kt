@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import java.time.Instant
@@ -43,6 +44,7 @@ import java.util.Locale
 fun DateTimeRow(
     date: LocalDate,
     time: LocalTime,
+    iconTint: Color? = null,
     onDateSelected: (LocalDate) -> Unit,
     onTimeSelected: (LocalTime) -> Unit
 ) {
@@ -64,12 +66,14 @@ fun DateTimeRow(
     ) {
         DateTimeChip(
             icon = Icons.Default.CalendarToday,
+            iconTint = iconTint,
             text = date.format(dateFormatter),
             onClick = { showDatePicker = true },
             modifier = Modifier.weight(1f)
         )
         DateTimeChip(
             icon = Icons.Default.AccessTime,
+            iconTint = iconTint,
             text = time.format(timeFormatter),
             onClick = { showTimePicker = true },
             modifier = Modifier.weight(1f)
@@ -102,6 +106,7 @@ fun DateTimeRow(
 @Composable
 private fun DateTimeChip(
     icon: ImageVector,
+    iconTint: Color? = null,
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -113,7 +118,7 @@ private fun DateTimeChip(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = iconTint?: MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(18.dp)
         )
         Text(

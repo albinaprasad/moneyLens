@@ -190,7 +190,9 @@ fun TopScreenFAB(navController: NavHostController) {
         FloatingActionButton(
             onClick = {
                 isToggled = !isToggled
-                navController.navigate(AppScreens.SaveScreen)
+                navController.navigate(AppScreens.SaveScreen){
+                    launchSingleTop = true
+                }
 
             },
             modifier = Modifier.customScalingAnimation(isAppeared)

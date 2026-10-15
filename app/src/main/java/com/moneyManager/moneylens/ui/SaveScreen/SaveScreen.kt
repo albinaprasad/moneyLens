@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -47,6 +48,9 @@ fun SaveScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val bottomSheetUiState by viewModel.bottomSheetUiState.collectAsState()
+    val selectedCategory  = bottomSheetUiState.selectedCategory
+    val selectedCategoryColor = selectedCategory?.let { Color(it.color) }
+
     Scaffold(
         topBar = {
             CommonTopBar(
@@ -93,6 +97,7 @@ fun SaveScreen(
                 DateTimeRow(
                     date = uiState.date,
                     time = uiState.time,
+                    iconTint = selectedCategoryColor,
                     onDateSelected = viewModel::onDateSelected,
                     onTimeSelected = viewModel::onTimeSelected
                 )
@@ -100,14 +105,16 @@ fun SaveScreen(
                 AmountSection(
                     amount = uiState.amount,
                     onAmountChange = viewModel::onAmountChange,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    iconTint = selectedCategoryColor
 
                 )
 
                 TransactionOptionItem(
                     label = "Category",
                     value = uiState.category,
-                    leadingIcon = Icons.Default.Category,
+                    leadingIcon = selectedCategory?.let { viewModel.getCategoryIcon(it.icon) } ?: Icons.Default.Category,
+                    iconTint = selectedCategoryColor,
                     onClick = {
                         viewModel.openCategorySheet()
                     }
@@ -116,15 +123,17 @@ fun SaveScreen(
                 TransactionOptionItem(
                     label = "Payment mode",
                     value = uiState.paymentMode,
-                    leadingIcon = Icons.Default.Payments,
+                    leadingIcon =  bottomSheetUiState.selectedPaymentMode?.let { viewModel.getAccountIcon(it.icon) } ?: Icons.Default.Payments,
                     onClick = {
                         // payment mode selection later
                         viewModel.openAccountSheet()
-                    }
+                    },
+                    iconTint = selectedCategoryColor
                 )
 
                 NoteSection(
                     note = uiState.note,
+                    iconTint = selectedCategoryColor,
                     onNoteChange = { note ->
                         viewModel.onNoteChange(note)
                     }

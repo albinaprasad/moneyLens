@@ -88,7 +88,7 @@ fun CategorySheet(
                 Surface(
                     onClick = {
                         // Handle category selection
-                        viewmodal.onCategorySelected(category.name)
+                        viewmodal.onCategorySelected(category)
                         onCloseClick()
                     },
                     shape = RoundedCornerShape(16.dp),

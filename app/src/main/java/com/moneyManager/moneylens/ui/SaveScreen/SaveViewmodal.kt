@@ -20,6 +20,8 @@ import javax.inject.Inject
 data class BottomSheetUiState(
     val categories: List<Category> = emptyList(),
     val accounts: List<Account> = emptyList(),
+    val selectedCategory: Category? = null,
+    val selectedPaymentMode: Account? = null,
 
     val showCategorySheet: Boolean = false,
     val showAccountSheet: Boolean = false
@@ -103,12 +105,15 @@ class SaveViewmodal @Inject constructor(
         }
     }
 
-    fun onCategorySelected(category: String) {
-        _uiState.update { it.copy(category = category) }
+    fun onCategorySelected(category: Category) {
+        _uiState.update { it.copy(category = category.name) }
+        _bottomSheetUiState.update { it.copy(selectedCategory = category) }
     }
 
-    fun onPaymentModeSelected(mode: String) {
-        _uiState.update { it.copy(paymentMode = mode) }
+    fun onPaymentModeSelected(mode: Account) {
+        _uiState.update { it.copy(paymentMode = mode.name) }
+        _bottomSheetUiState.update { it.copy(selectedPaymentMode = mode) }
+
     }
 
     fun onNoteChange(note: String) {

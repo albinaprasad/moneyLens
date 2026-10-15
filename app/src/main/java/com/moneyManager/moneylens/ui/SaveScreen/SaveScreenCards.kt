@@ -17,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -40,7 +42,8 @@ import androidx.compose.ui.unit.sp
 fun AmountSection(
     amount: String,
     onAmountChange: (String) -> Unit,
-    viewModel: SaveViewmodal
+    viewModel: SaveViewmodal,
+    iconTint: Color? = null
 ) {
     val focusRequester = remember { FocusRequester() }
 
@@ -59,21 +62,18 @@ fun AmountSection(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Leading static currency symbol
-        Text(
-            text = "₹",
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Medium,
-                fontSize = 20.sp
-            ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.width(32.dp)
+        Icon(
+            imageVector = Icons.Default.CurrencyRupee,
+            contentDescription = "Rupee",
+            tint = iconTint ?: MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(24.dp)
         )
 
         // Label + Amount Input Stack
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 4.dp)
+                .padding(horizontal = 32.dp)
         ) {
             Text(
                 modifier = Modifier.padding(bottom = 1.dp),
@@ -127,6 +127,7 @@ fun TransactionOptionItem(
     value: String,
     leadingIcon: ImageVector,
     onClick: () -> Unit,
+    iconTint: Color? = null,
 ) {
     
     Row(
@@ -146,7 +147,7 @@ fun TransactionOptionItem(
         Icon(
             imageVector = leadingIcon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = iconTint?: MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Column(
@@ -178,6 +179,7 @@ fun TransactionOptionItem(
 @Composable
 fun NoteSection(
     note: String,
+    iconTint: Color? = null,
     onNoteChange: (String) -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -201,13 +203,13 @@ fun NoteSection(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.Notes,
             contentDescription = "Note",
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = iconTint ?: MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier
-                .size(28.dp)
+                .size(24.dp)
                 .padding(top = 2.dp)
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(32.dp))
 
         Column(
             modifier = Modifier.weight(1f)
