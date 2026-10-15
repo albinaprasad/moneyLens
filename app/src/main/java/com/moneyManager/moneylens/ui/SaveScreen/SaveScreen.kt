@@ -26,9 +26,11 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +41,7 @@ import androidx.navigation.NavHostController
 import com.moneyManager.moneylens.ui.SaveScreen.CategoryBottomSheet.AccountSheet
 import com.moneyManager.moneylens.ui.SaveScreen.CategoryBottomSheet.CategorySheet
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,7 +147,21 @@ fun SaveScreen(
     }
 
     if (bottomSheetUiState.showCategorySheet) {
+
+        val categorySheetState = rememberModalBottomSheetState()
+        val scope = rememberCoroutineScope()
+
+        fun closeCategorySheetWithAnimation() {
+            scope.launch {
+                categorySheetState.hide()
+            }.invokeOnCompletion {
+                if (!categorySheetState.isVisible) {
+                    viewModel.closeCategorySheet()
+                }
+            }
+        }
         ModalBottomSheet(
+            sheetState = categorySheetState,
             onDismissRequest = {
                 viewModel.closeCategorySheet()
             }
@@ -156,14 +173,29 @@ fun SaveScreen(
                     // later
                 },
                 onCloseClick = {
-                    viewModel.closeCategorySheet()
+                    closeCategorySheetWithAnimation()
                 }
             )
         }
     }
 
     if (bottomSheetUiState.showAccountSheet) {
+
+        val accountSheetState = rememberModalBottomSheetState()
+        val scope = rememberCoroutineScope()
+
+        fun closeAccountSheetWithAnimation() {
+            scope.launch {
+                accountSheetState.hide()
+            }.invokeOnCompletion {
+                if (!accountSheetState.isVisible) {
+                    viewModel.closeAccountSheet()
+                }
+            }
+        }
+
         ModalBottomSheet(
+            sheetState = accountSheetState,
             onDismissRequest = {
                 viewModel.closeAccountSheet()
             }
@@ -175,7 +207,7 @@ fun SaveScreen(
                     // later
                 },
                 onCloseClick = {
-                    viewModel.closeAccountSheet()
+                    closeAccountSheetWithAnimation()
                 }
             )
         }
