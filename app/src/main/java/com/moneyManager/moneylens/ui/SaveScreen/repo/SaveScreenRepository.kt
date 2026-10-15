@@ -54,7 +54,7 @@ class SaveScreenRepository @Inject constructor(
     private val transactionDao: TransactionDao
 ) {
 
-    fun getDefaultCategories() = listOf(
+    fun getDefaultExpenseCategories() = listOf(
         Category(
             name = "Others",
             icon = "MoreHoriz",
@@ -155,6 +155,14 @@ class SaveScreenRepository @Inject constructor(
         )
     )
 
+    fun getDefaultIncomeCategories() = listOf(
+        Category(name = "Salary", icon = "Payments", type = "INCOME", color = CategoryInvestments.toArgb(), isDefault = true),
+        Category(name = "Business", icon = "AccountBalance", type = "INCOME", color = CategoryBills.toArgb(), isDefault = true),
+        Category(name = "Gifts / Allowance", icon = "CardGiftcard", type = "INCOME", color = CategoryGifts.toArgb(), isDefault = true),
+        Category(name = "Investment Return", icon = "ShowChart", type = "INCOME", color = CategoryFood.toArgb(), isDefault = true),
+        Category(name = "Other Income", icon = "MoreHoriz", type = "INCOME", color = CategoryOthers.toArgb(), isDefault = true)
+    )
+
     fun getCategoryIcon(icon: String): ImageVector {
         return when (icon) {
             "MoreHoriz" -> Icons.Default.MoreHoriz
@@ -205,7 +213,8 @@ class SaveScreenRepository @Inject constructor(
 
     suspend fun initializeCategories() {
         if (categoryDao.getCategoryCount() == 0) {
-            categoryDao.insertAll(getDefaultCategories())
+            val allDefaults = getDefaultExpenseCategories() + getDefaultIncomeCategories()
+            categoryDao.insertAll(allDefaults)
         }
     }
 

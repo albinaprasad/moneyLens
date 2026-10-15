@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -82,7 +81,8 @@ fun SaveScreen(
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.background)
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             //expence  or Income
             ExpenceIncomeBar(
@@ -221,9 +221,8 @@ fun ExpenceIncomeBar(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(
             8.dp,
@@ -232,10 +231,17 @@ fun ExpenceIncomeBar(
     ) {
         TransactionType.values().forEach { type ->
             val isSelected = selectedType == type
+            val accentColor = when (type) {
+                TransactionType.EXPENSE -> MaterialTheme.colorScheme.primary    // Expense
+                TransactionType.INCOME ->  MaterialTheme.colorScheme.tertiary  //  Income
+            }
+            val backgroundColor = if (isSelected) accentColor else Color.Transparent
+            val textColor = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
+                    .background(backgroundColor)
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 TextButton(
@@ -245,7 +251,7 @@ fun ExpenceIncomeBar(
                 ) {
                     Text(
                         type.label,
-                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = textColor,
                         style = MaterialTheme.typography.labelLarge
                     )
                 }

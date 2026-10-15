@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -73,10 +74,15 @@ class SaveViewmodal @Inject constructor(
             it.copy(showAccountSheet = false)
         }
     }
-    suspend  fun getCategoriesToShow(){
-        saveRepo.getCategories().collect { categories ->
+    suspend fun getCategoriesToShow() {
+        combine(
+            saveRepo.getCategories(),
+            _uiState
+        ) { allCategories, uiState ->
+            allCategories.filter { it.type == uiState.type.name }
+        }.collect { filteredCategories ->
             _bottomSheetUiState.update {
-                it.copy(categories = categories)
+                it.copy(categories = filteredCategories)
             }
         }
     }
@@ -95,7 +101,8 @@ class SaveViewmodal @Inject constructor(
        return saveRepo.getAccountIcon(icon)
     }
     fun onTypeSelected(type: TransactionType) {
-        _uiState.update { it.copy(type = type) }
+        _uiState.update { it.copy(type = type, category = "Others") }
+        _bottomSheetUiState.update { it.copy(selectedCategory = null) }
     }
 
     fun onAmountChange(value: String) {
