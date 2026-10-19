@@ -18,8 +18,10 @@ data class HistoryUiState(
     val totalIncome: Double = 0.0,
     val totalExpenses: Double = 0.0,
     val categoryExpenses: List<CategoryExpense> = emptyList(),
-    val categoryIncomes: List<CategoryExpense> = emptyList()
-) {
+    val categoryIncomes: List<CategoryExpense> = emptyList(),
+    val accountExpenses: List<AccountTotal> = emptyList(),
+    val accountIncomes: List<AccountTotal> = emptyList()
+){
 
 }
 
@@ -29,6 +31,14 @@ data class CategoryExpense(
     val categoryName: String,
     val icon: String,
     val color: Int,
+    val totalAmount: Double
+)
+
+//data class used for showing the payment mode section
+data class AccountTotal(
+    val accountId: Int,
+    val accountIcon: String,
+    val accountName: String,
     val totalAmount: Double
 )
 

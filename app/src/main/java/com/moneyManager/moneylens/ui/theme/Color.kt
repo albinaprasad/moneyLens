@@ -84,3 +84,8 @@ val CategoryRent = Color(0xFF4DB6AC)
 val CategoryTaxes = Color(0xFF9E9E9E)
 val CategoryInsurance = Color(0xFF7986CB)
 val CategoryGifts = Color(0xFF00BFA5)
+
+val CashTint = Color(0xFF4CAF50)
+val BankTint = Color(0xFF2196F3)
+val SavingsTint = Color(0xFFFF9800)
+val DefaultAccountTint = Color.Gray

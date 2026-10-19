@@ -1,12 +1,21 @@
 package com.moneyManager.moneylens.ui.AnalysisAndHistoryScreen
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.moneyManager.moneylens.DataClass.AccountTotal
 import com.moneyManager.moneylens.DataClass.CategoryExpense
 import com.moneyManager.moneylens.DataClass.HistoryUiState
 import com.moneyManager.moneylens.DataClass.TimePeriod
+import com.moneyManager.moneylens.database.Entity.Account
 import com.moneyManager.moneylens.database.Entity.Category
 import com.moneyManager.moneylens.database.Entity.Transaction
+import com.moneyManager.moneylens.ui.SaveScreen.repo.SaveScreenRepository
+import com.moneyManager.moneylens.ui.theme.BankTint
+import com.moneyManager.moneylens.ui.theme.CashTint
+import com.moneyManager.moneylens.ui.theme.DefaultAccountTint
+import com.moneyManager.moneylens.ui.theme.SavingsTint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,16 +34,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HistoryViewModal @Inject constructor(
-    private val historyRepository: HistoryRepository
+    private val historyRepository: HistoryRepository,
+    private val saveScreenRepository: SaveScreenRepository
 ) : ViewModel() {
     private val _historyUiState = MutableStateFlow(HistoryUiState())
     val historyUiState = _historyUiState.asStateFlow()
 
     var categories = emptyList<Category>()
+    var accounts = emptyList<Account>()
 
     init {
         viewModelScope.launch {
             categories = historyRepository.getAllCategories().first()
+            accounts = historyRepository.getAllAccounts().first()
             observeTransactions()
         }
     }
@@ -188,6 +200,7 @@ class HistoryViewModal @Inject constructor(
                     calculateTotals(transactionList)
                     updateCategoryExpenses(transactionList)
                     updateCategoryIncomes(transactionList)
+                    updateAccountTotals(transactionList)
                 }
 
 
@@ -324,6 +337,71 @@ class HistoryViewModal @Inject constructor(
             currentState.copy(
                 categoryIncomes = categoryIncome
             )
+        }
+    }
+
+    private fun updateAccountTotals(
+        transactions: List<Transaction>
+    ) {
+        val expenseTotals = calculateAccountTotals(
+            transactions.filter { it.type == "EXPENSE" }
+        )
+
+        val incomeTotals = calculateAccountTotals(
+            transactions.filter { it.type == "INCOME" }
+        )
+
+        _historyUiState.update { currentState ->
+            currentState.copy(
+                accountExpenses = expenseTotals,
+                accountIncomes = incomeTotals
+            )
+        }
+    }
+
+    private fun calculateAccountTotals(
+        transactions: List<Transaction>
+    ): List<AccountTotal> {
+
+        val groupedTransactions = transactions.groupBy {
+            it.accountId
+        }
+
+        val accountTotals = mutableListOf<AccountTotal>()
+
+        for ((accountId, accountTransactions) in groupedTransactions) {
+            val account = accounts.find {
+                it.id == accountId
+            } ?: continue
+
+            val totalAmount = accountTransactions.sumOf {
+                it.amount
+            }
+
+            accountTotals.add(
+                AccountTotal(
+                    accountId = account.id,
+                    accountIcon = account.icon,
+                    accountName = account.name,
+                    totalAmount = totalAmount
+                )
+            )
+        }
+
+        return accountTotals.sortedByDescending {
+            it.totalAmount
+        }
+    }
+
+    fun getAccountIcon(icon: String): ImageVector {
+        return saveScreenRepository.getAccountIcon(icon)
+    }
+    fun getAccountTint(accountName: String): Color {
+        return when (accountName.lowercase()) {
+            "cash" -> CashTint
+            "bank" -> BankTint
+            "savings" -> SavingsTint
+            else -> DefaultAccountTint
         }
     }
 }

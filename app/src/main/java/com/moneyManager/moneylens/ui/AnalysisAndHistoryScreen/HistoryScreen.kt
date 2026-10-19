@@ -19,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,12 +74,18 @@ fun HistoryScreen(
             )
         }
 
+    val selectedAccountTotals =
+        if (selectedPaymentType == "Spending") {
+            uiState.accountExpenses
+        } else {
+            uiState.accountIncomes
+        }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp)
     ) {
@@ -92,7 +99,6 @@ fun HistoryScreen(
 
         Spacer(Modifier.height(14.dp))
 
-        Text("Category expenses: ${uiState.categoryExpenses.size}")
         // Period selector
         SegmentedSelector(
             options = listOf("Week", "Month", "Year"),
@@ -256,42 +262,44 @@ fun HistoryScreen(
         ) {
             Column(Modifier.padding(20.dp)) {
                 SegmentedSelector(
-                    options = listOf("Spending", "Income", "Transfers"),
+                    options = listOf("Spending", "Income"),
                     selected = selectedPaymentType,
                     onSelected = { selectedPaymentType = it }
                 )
 
                 Spacer(Modifier.height(20.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("💵", fontSize = 22.sp)
+                selectedAccountTotals.forEach { account ->
 
-                    Text(
-                        when (selectedPaymentType) {
-                            "Income" -> "Cash"
-                            "Transfers" -> "Bank transfer"
-                            else -> "Cash"
-                        },
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 12.dp)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = viewModal.getAccountIcon(account.accountIcon),
+                            contentDescription = account.accountName,
+                            tint = viewModal.getAccountTint(account.accountName),
+                            modifier = Modifier.size(22.dp)
+                        )
 
-                    Text(
-                        when (selectedPaymentType) {
-                            "Income" -> "₹3,00,000"
-                            "Transfers" -> "₹0"
-                            else -> "₹51,55,22,935"
-                        },
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
-                    )
+                        Text(
+                            text = account.accountName,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 12.dp)
+                        )
+
+                        Text(
+                            text = "₹${formatAmountToTwoDecimal(account.totalAmount)}",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(Modifier.height(16.dp))
                 }
             }
         }
