@@ -4,17 +4,24 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-07-19T14:59:51.216514400Z">
+        <DropdownSelection timestamp="2026-09-27T13:55:33.201833700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=F:\ANDROIDSTUDIOSETUPS\.android\Pixel_7.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=F:\ANDROIDSTUDIOSETUPS\.android\Pixel_9.avd" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="preview">
+      <SelectionState runConfigName="CategorySheetPreview">
         <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2026-09-27T13:55:33.201833700Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="LocalEmulator" identifier="path=F:\ANDROIDSTUDIOSETUPS\.android\Pixel_9.avd" />
+            </handle>
+          </Target>
+        </DropdownSelection>
         <DialogSelection />
       </SelectionState>
     </selectionStates>

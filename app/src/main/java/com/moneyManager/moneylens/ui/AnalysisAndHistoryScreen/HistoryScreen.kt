@@ -23,7 +23,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,15 +33,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moneyManager.moneylens.DataClass.ChartSlice
+import com.moneyManager.moneylens.DataClass.TimePeriod
 import com.moneyManager.moneylens.ui.commonUiElements.CircularPieChart
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTabSelector
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
-import com.moneyManager.moneylens.ui.theme.CategoryBills
-import com.moneyManager.moneylens.ui.theme.CategoryFood
-import com.moneyManager.moneylens.ui.theme.CategoryOthers
-import com.moneyManager.moneylens.ui.theme.CategoryShopping
-import com.moneyManager.moneylens.ui.theme.CategoryTravel
+import com.moneyManager.moneylens.ui.utils.formatAmountToTwoDecimal
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 
 @Composable
 fun HistoryScreen(
@@ -50,10 +52,27 @@ fun HistoryScreen(
     onBackClick: () -> Unit = {},
     onTabClick: (String) -> Unit = {}
 ) {
-    var selectedPeriod by remember { mutableStateOf("Year") }
+    val viewModal: HistoryViewModal = hiltViewModel()
+    val uiState by viewModal.historyUiState.collectAsStateWithLifecycle()
     var selectedCategoryType by remember { mutableStateOf(0) }
     var selectedPaymentType by remember { mutableStateOf("Spending") }
-    var selectedYear by remember { mutableIntStateOf(2026) }
+
+    val totalExpenses = uiState.totalExpenses
+    val totalIncome = uiState.totalIncome
+    val chartSlices = (
+            if (selectedCategoryType == 0) {
+                uiState.categoryExpenses
+            } else {
+                uiState.categoryIncomes
+            }
+            ).map { category ->
+            ChartSlice(
+                name = category.categoryName,
+                value = category.totalAmount.toFloat(),
+                color = Color(category.color)
+            )
+        }
+
 
     Column(
         modifier = modifier
@@ -73,11 +92,17 @@ fun HistoryScreen(
 
         Spacer(Modifier.height(14.dp))
 
+        Text("Category expenses: ${uiState.categoryExpenses.size}")
         // Period selector
         SegmentedSelector(
             options = listOf("Week", "Month", "Year"),
-            selected = selectedPeriod,
-            onSelected = { selectedPeriod = it }
+            selected = uiState.timePeriod.name
+                .lowercase()
+                .replaceFirstChar { it.uppercase() },
+            onSelected = { selected ->
+                val period = TimePeriod.valueOf(selected.uppercase())
+                viewModal.onTimePeriodSelected(period)
+            }
         )
 
         Spacer(Modifier.height(16.dp))
@@ -97,7 +122,9 @@ fun HistoryScreen(
                     "‹",
                     fontSize = 32.sp,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.clickable { selectedYear-- }
+                    modifier = Modifier.clickable {
+                        viewModal.onPreviousPeriod()
+                    }
                 )
 
                 Column(
@@ -105,13 +132,16 @@ fun HistoryScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        "$selectedYear",
+                        text = getPeriodLabel(
+                            uiState.timePeriod,
+                            uiState.selectedDate
+                        ),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "7 TRANSACTIONS",
+                        "${uiState.transactions.size} TRANSACTIONS",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -121,7 +151,9 @@ fun HistoryScreen(
                     "›",
                     fontSize = 32.sp,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.clickable { selectedYear++ }
+                    modifier = Modifier.clickable {
+                        viewModal.onNextPeriod()
+                    }
                 )
             }
         }
@@ -129,7 +161,7 @@ fun HistoryScreen(
         Spacer(Modifier.height(24.dp))
 
         // Spending and income summary
-        SummaryCard()
+        SummaryCard(totalExpenses,totalIncome)
 
         Spacer(Modifier.height(24.dp))
 
@@ -154,33 +186,7 @@ fun HistoryScreen(
                 )
 
                 Spacer(Modifier.height(6.dp))
-                val chartSlices = listOf(
-                    ChartSlice(
-                        name = "Food",
-                        value = 15000f,
-                        color = CategoryFood
-                    ),
-                    ChartSlice(
-                        name = "Shopping",
-                        value = 10000f,
-                        color = CategoryShopping
-                    ),
-                    ChartSlice(
-                        name = "Travel",
-                        value = 5000f,
-                        color = CategoryTravel
-                    ),
-                    ChartSlice(
-                        name = "Bills",
-                        value = 8000f,
-                        color = CategoryBills
-                    ),
-                    ChartSlice(
-                        name = "Others",
-                        value = 7000f,
-                        color = CategoryOthers
-                    )
-                )
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -303,7 +309,9 @@ fun HistoryScreen(
 }
 
 @Composable
-private fun SummaryCard() {
+private fun SummaryCard(totalExpenses: Double, totalIncome: Double) {
+
+    val netBalance = totalIncome - totalExpenses
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp)
@@ -322,7 +330,7 @@ private fun SummaryCard() {
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "₹51,55,22,935",
+                        "₹${formatAmountToTwoDecimal(totalExpenses)}",
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
@@ -344,7 +352,7 @@ private fun SummaryCard() {
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "₹3,00,000",
+                        "₹${formatAmountToTwoDecimal(totalIncome)}",
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
@@ -370,7 +378,7 @@ private fun SummaryCard() {
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    "-₹51,52,22,935",
+                    formatAmountToTwoDecimal(netBalance),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
@@ -516,3 +524,27 @@ private fun SectionTitle(title: String) {
     )
 }
 
+private fun getPeriodLabel(
+    period: TimePeriod,
+    date: LocalDate
+): String {
+    return when (period) {
+        TimePeriod.WEEK -> {
+            val start = date.with(
+                TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY)
+            )
+            val end = start.plusDays(6)
+
+            "${start.dayOfMonth} ${start.month.name.lowercase()
+                .replaceFirstChar { it.uppercase() }} – " +
+                    "${end.dayOfMonth} ${end.month.name.lowercase()
+                        .replaceFirstChar { it.uppercase() }} ${end.year}"
+        }
+
+        TimePeriod.MONTH ->
+            date.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+
+        TimePeriod.YEAR ->
+            date.year.toString()
+    }
+}

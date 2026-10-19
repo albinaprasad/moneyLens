@@ -43,7 +43,7 @@ fun CommonTopBar(
         if (showStartIcon) {
             Image(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(40.dp)
                     .clickable { onStartClick() }
                     .padding(8.dp),
                 painter = painterResource(R.drawable.icon_back_btn),
@@ -58,7 +58,7 @@ fun CommonTopBar(
             text = heading,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(1f)
         )
