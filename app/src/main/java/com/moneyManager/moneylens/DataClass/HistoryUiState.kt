@@ -20,7 +20,10 @@ data class HistoryUiState(
     val categoryExpenses: List<CategoryExpense> = emptyList(),
     val categoryIncomes: List<CategoryExpense> = emptyList(),
     val accountExpenses: List<AccountTotal> = emptyList(),
-    val accountIncomes: List<AccountTotal> = emptyList()
+    val accountIncomes: List<AccountTotal> = emptyList(),
+    val netSavings: Double = 0.0,
+    val transactionCount: Int = 0,
+    val highestExpense: Double = 0.0
 ){
 
 }

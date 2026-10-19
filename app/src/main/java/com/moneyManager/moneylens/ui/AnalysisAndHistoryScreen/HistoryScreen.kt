@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moneyManager.moneylens.DataClass.ChartSlice
+import com.moneyManager.moneylens.DataClass.HistoryUiState
 import com.moneyManager.moneylens.DataClass.TimePeriod
 import com.moneyManager.moneylens.ui.commonUiElements.CircularPieChart
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTabSelector
@@ -310,7 +311,7 @@ fun HistoryScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        StatsCard()
+        StatsCard(uiState)
 
         Spacer(Modifier.height(50.dp))
     }
@@ -397,7 +398,9 @@ private fun SummaryCard(totalExpenses: Double, totalIncome: Double) {
 }
 
 @Composable
-private fun StatsCard() {
+private fun StatsCard(
+    uiState: HistoryUiState
+) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp)
@@ -418,14 +421,14 @@ private fun StatsCard() {
 
             Row(Modifier.fillMaxWidth()) {
                 StatItem(
-                    label = "Per month",
-                    value = "₹5,15,52,294",
+                    label = "Total Expenses",
+                    value = "₹${formatAmountToTwoDecimal(uiState.totalExpenses)}",
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(Modifier.width(8.dp))
                 StatItem(
-                    label = "Per transaction",
-                    value = "₹8,59,20,489",
+                    label = "Highest Expense",
+                    value = "₹${formatAmountToTwoDecimal(uiState.highestExpense)}",
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -443,14 +446,14 @@ private fun StatsCard() {
 
             Row(Modifier.fillMaxWidth()) {
                 StatItem(
-                    label = "Per month",
-                    value = "₹30,000",
+                    label = "Total Income",
+                    value = "₹${formatAmountToTwoDecimal(uiState.totalIncome)}",
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(Modifier.width(8.dp))
                 StatItem(
-                    label = "Per transaction",
-                    value = "₹3,00,000",
+                    label = "Transactions",
+                    value = uiState.transactionCount.toString(),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -555,4 +558,6 @@ private fun getPeriodLabel(
         TimePeriod.YEAR ->
             date.year.toString()
     }
+
+
 }

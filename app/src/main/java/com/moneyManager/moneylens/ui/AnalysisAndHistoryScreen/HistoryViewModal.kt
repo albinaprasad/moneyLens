@@ -201,6 +201,7 @@ class HistoryViewModal @Inject constructor(
                     updateCategoryExpenses(transactionList)
                     updateCategoryIncomes(transactionList)
                     updateAccountTotals(transactionList)
+                    updateStatistics(transactionList)
                 }
 
 
@@ -402,6 +403,30 @@ class HistoryViewModal @Inject constructor(
             "bank" -> BankTint
             "savings" -> SavingsTint
             else -> DefaultAccountTint
+        }
+    }
+
+    private fun updateStatistics(
+        transactionList: List<Transaction>
+    ) {
+        val income = transactionList
+            .filter { it.type == "INCOME" }
+            .sumOf { it.amount }
+
+        val expenses = transactionList
+            .filter { it.type == "EXPENSE" }
+            .sumOf { it.amount }
+
+        val highestExpense = transactionList
+            .filter { it.type == "EXPENSE" }
+            .maxOfOrNull { it.amount } ?: 0.0
+
+        _historyUiState.update { currentState ->
+            currentState.copy(
+                netSavings = income - expenses,
+                transactionCount = transactionList.size,
+                highestExpense = highestExpense
+            )
         }
     }
 }
