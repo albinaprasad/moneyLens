@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -75,7 +77,8 @@ fun HistoryScreen(
             ChartSlice(
                 name = category.categoryName,
                 value = category.totalAmount.toFloat(),
-                color = Color(category.color)
+                color = Color(category.color),
+                icon = viewModal.getCategoryIcon(category.icon)
             )
         }
 
@@ -401,7 +404,7 @@ private fun CategoriesSection(
             }
 
             Spacer(Modifier.height(26.dp))
-
+            chartSlices.forEach { slice ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -413,15 +416,16 @@ private fun CategoriesSection(
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        "•••",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 16.sp
+                    Icon(
+                        imageVector = slice.icon ?: Icons.Default.MoreHoriz ,
+                        contentDescription = slice.name,
+                        tint = slice.color,
+                        modifier = Modifier.size(22.dp)
                     )
                 }
 
                 Text(
-                    "Others",
+                    slice.name,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
@@ -430,14 +434,14 @@ private fun CategoriesSection(
                 )
 
                 Text(
-                    if (selectedCategoryType == 0)
-                        "₹3,00,000"
-                    else
-                        "₹51,55,22,935",
+                    text = "₹${formatAmountToTwoDecimal(slice.value.toDouble())}",
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold
                 )
+            }
+                Spacer(Modifier.height(16.dp))
+
             }
         }
     }

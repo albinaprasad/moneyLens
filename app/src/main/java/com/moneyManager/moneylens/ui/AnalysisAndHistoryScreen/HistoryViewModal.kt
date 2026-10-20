@@ -51,6 +51,9 @@ class HistoryViewModal @Inject constructor(
         }
     }
 
+    fun getCategoryIcon(icon: String): ImageVector {
+        return saveScreenRepository.getCategoryIcon(icon)
+    }
     fun onPreviousPeriod() {
         _historyUiState.update { state ->
             state.copy(
