@@ -60,7 +60,7 @@ import java.time.temporal.TemporalAdjusters
 fun HistoryScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {},
-    onTabClick: (String) -> Unit = {}
+    onCategoryClick: (String) -> Unit = {}
 ) {
     val viewModal: HistoryViewModal = hiltViewModel()
     val uiState by viewModal.historyUiState.collectAsStateWithLifecycle()
@@ -104,7 +104,8 @@ fun HistoryScreen(
             onPreviousPeriod = { viewModal.onPreviousPeriod() },
             onNextPeriod = { viewModal.onNextPeriod() },
             getAccountIcon = { viewModal.getAccountIcon(it) },
-            getAccountTint = { viewModal.getAccountTint(it) }
+            getAccountTint = { viewModal.getAccountTint(it) },
+            onCategoryClick = onCategoryClick
         )
     } else {
         HistoryPortraitMode(
@@ -121,7 +122,8 @@ fun HistoryScreen(
             onPreviousPeriod = { viewModal.onPreviousPeriod() },
             onNextPeriod = { viewModal.onNextPeriod() },
             getAccountIcon = { viewModal.getAccountIcon(it) },
-            getAccountTint = { viewModal.getAccountTint(it) }
+            getAccountTint = { viewModal.getAccountTint(it) },
+            onCategoryClick = onCategoryClick
         )
     }
 }
@@ -141,7 +143,8 @@ private fun HistoryPortraitMode(
     onPreviousPeriod: () -> Unit,
     onNextPeriod: () -> Unit,
     getAccountIcon: (String) -> ImageVector,
-    getAccountTint: (String) -> Color
+    getAccountTint: (String) -> Color,
+    onCategoryClick: (String) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -173,7 +176,9 @@ private fun HistoryPortraitMode(
         CategoriesSection(
             selectedCategoryType = selectedCategoryType,
             onCategoryTypeSelected = onCategoryTypeSelected,
-            chartSlices = chartSlices
+            chartSlices = chartSlices,
+            onCategoryClick = onCategoryClick
+
         )
 
         Spacer(Modifier.height(24.dp))
@@ -209,7 +214,8 @@ private fun HistoryLandscapeMode(
     onPreviousPeriod: () -> Unit,
     onNextPeriod: () -> Unit,
     getAccountIcon: (String) -> ImageVector,
-    getAccountTint: (String) -> Color
+    getAccountTint: (String) -> Color,
+    onCategoryClick: (String) -> Unit
 ) {
     Row(
         modifier = modifier
@@ -264,7 +270,8 @@ private fun HistoryLandscapeMode(
             CategoriesSection(
                 selectedCategoryType = selectedCategoryType,
                 onCategoryTypeSelected = onCategoryTypeSelected,
-                chartSlices = chartSlices
+                chartSlices = chartSlices,
+                onCategoryClick
             )
 
             Spacer(Modifier.height(24.dp))
@@ -365,7 +372,8 @@ private fun HistoryHeaderSection(
 private fun CategoriesSection(
     selectedCategoryType: Int,
     onCategoryTypeSelected: (Int) -> Unit,
-    chartSlices: List<ChartSlice>
+    chartSlices: List<ChartSlice>,
+    onCategoryClick: (String) -> Unit
 ) {
     SectionTitle("Categories")
 
@@ -423,7 +431,10 @@ private fun CategoriesSection(
                             modifier = Modifier
                                 .size(38.dp)
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(slice.color.copy(alpha = 0.2f)),
+                                .background(slice.color.copy(alpha = 0.2f))
+                                .clickable{
+                                    onCategoryClick(slice.name)
+                                },
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(

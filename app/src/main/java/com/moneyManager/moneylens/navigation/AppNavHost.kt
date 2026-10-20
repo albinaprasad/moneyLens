@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.moneyManager.moneylens.enums.AppLaunchState
+import com.moneyManager.moneylens.ui.AnalysisAndHistoryScreen.HistoryDetailsScreen
 import com.moneyManager.moneylens.ui.HistoryScreen.HistoryScreen
 import com.moneyManager.moneylens.ui.SaveScreen.SaveScreen
 import com.moneyManager.moneylens.ui.Settings.SettingsScreen
@@ -104,7 +105,13 @@ fun AppNavHost(navController: NavHostController) {
         composable<AppScreens.HistoryScreen> {
             HistoryScreen(onBackClick={
                 navController.popBackStack()
+            }, onCategoryClick = {
+                navController.navigate(AppScreens.HistoryDetailsScreen)
             })
+        }
+
+        composable<AppScreens.HistoryDetailsScreen>{
+            HistoryDetailsScreen()
         }
     }
 }

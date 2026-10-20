@@ -27,4 +27,6 @@ sealed class AppScreens {
     @Serializable object AboutRoute: AppScreens()
     @Serializable object HistoryScreen: AppScreens()
 
+    @Serializable object HistoryDetailsScreen: AppScreens()
+
 }
