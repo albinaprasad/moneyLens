@@ -399,49 +399,60 @@ private fun CategoriesSection(
                     slices = chartSlices,
                     modifier = Modifier
                         .fillMaxWidth(0.75f)
-                        .aspectRatio(1f)
+                        .aspectRatio(1f),
+                    false
                 )
             }
 
             Spacer(Modifier.height(26.dp))
-            chartSlices.forEach { slice ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = slice.icon ?: Icons.Default.MoreHoriz ,
-                        contentDescription = slice.name,
-                        tint = slice.color,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
 
+            if (chartSlices.isEmpty()) {
                 Text(
-                    slice.name,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    text = "No category data for this period",
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 12.dp)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 12.dp)
                 )
+            } else {
+                chartSlices.forEach { slice ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(slice.color.copy(alpha = 0.2f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = slice.icon ?: Icons.Default.MoreHoriz,
+                                contentDescription = slice.name,
+                                tint = slice.color,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
 
-                Text(
-                    text = "₹${formatAmountToTwoDecimal(slice.value.toDouble())}",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-                Spacer(Modifier.height(16.dp))
+                        Text(
+                            slice.name,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 12.dp)
+                        )
 
+                        Text(
+                            text = "₹${formatAmountToTwoDecimal(slice.value.toDouble())}",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+                }
             }
         }
     }
@@ -472,36 +483,45 @@ private fun PaymentModesSection(
 
             Spacer(Modifier.height(20.dp))
 
-            selectedAccountTotals.forEach { account ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = getAccountIcon(account.accountIcon),
-                        contentDescription = account.accountName,
-                        tint = getAccountTint(account.accountName),
-                        modifier = Modifier.size(22.dp)
-                    )
+            if (selectedAccountTotals.isEmpty()) {
+                Text(
+                    text = "No payment mode data for this period",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                )
+            } else {
+                selectedAccountTotals.forEach { account ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = getAccountIcon(account.accountIcon),
+                            contentDescription = account.accountName,
+                            tint = getAccountTint(account.accountName),
+                            modifier = Modifier.size(22.dp)
+                        )
 
-                    Text(
-                        text = account.accountName,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 12.dp)
-                    )
+                        Text(
+                            text = account.accountName,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 12.dp)
+                        )
 
-                    Text(
-                        text = "₹${formatAmountToTwoDecimal(account.totalAmount)}",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
-                    )
+                        Text(
+                            text = "₹${formatAmountToTwoDecimal(account.totalAmount)}",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(Modifier.height(16.dp))
                 }
-
-                Spacer(Modifier.height(16.dp))
             }
         }
     }
