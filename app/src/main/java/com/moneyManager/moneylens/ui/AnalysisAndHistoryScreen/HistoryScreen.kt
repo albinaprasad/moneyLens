@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -24,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -31,11 +34,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moneyManager.moneylens.DataClass.AccountTotal
 import com.moneyManager.moneylens.DataClass.ChartSlice
 import com.moneyManager.moneylens.DataClass.HistoryUiState
 import com.moneyManager.moneylens.DataClass.TimePeriod
@@ -43,6 +48,7 @@ import com.moneyManager.moneylens.ui.commonUiElements.CircularPieChart
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTabSelector
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
 import com.moneyManager.moneylens.ui.utils.formatAmountToTwoDecimal
+import com.moneyManager.moneylens.ui.utils.isLandscape
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -56,11 +62,9 @@ fun HistoryScreen(
 ) {
     val viewModal: HistoryViewModal = hiltViewModel()
     val uiState by viewModal.historyUiState.collectAsStateWithLifecycle()
-    var selectedCategoryType by remember { mutableStateOf(0) }
+    var selectedCategoryType by remember { mutableIntStateOf(0) }
     var selectedPaymentType by remember { mutableStateOf("Spending") }
 
-    val totalExpenses = uiState.totalExpenses
-    val totalIncome = uiState.totalIncome
     val chartSlices = (
             if (selectedCategoryType == 0) {
                 uiState.categoryExpenses
@@ -82,6 +86,60 @@ fun HistoryScreen(
             uiState.accountIncomes
         }
 
+    if (isLandscape()) {
+        HistoryLandscapeMode(
+            modifier = modifier,
+            uiState = uiState,
+            selectedCategoryType = selectedCategoryType,
+            onCategoryTypeSelected = { selectedCategoryType = it },
+            selectedPaymentType = selectedPaymentType,
+            onPaymentTypeSelected = { selectedPaymentType = it },
+            chartSlices = chartSlices,
+            selectedAccountTotals = selectedAccountTotals,
+            onBackClick = onBackClick,
+            onTimePeriodSelected = { viewModal.onTimePeriodSelected(it) },
+            onPreviousPeriod = { viewModal.onPreviousPeriod() },
+            onNextPeriod = { viewModal.onNextPeriod() },
+            getAccountIcon = { viewModal.getAccountIcon(it) },
+            getAccountTint = { viewModal.getAccountTint(it) }
+        )
+    } else {
+        HistoryPortraitMode(
+            modifier = modifier,
+            uiState = uiState,
+            selectedCategoryType = selectedCategoryType,
+            onCategoryTypeSelected = { selectedCategoryType = it },
+            selectedPaymentType = selectedPaymentType,
+            onPaymentTypeSelected = { selectedPaymentType = it },
+            chartSlices = chartSlices,
+            selectedAccountTotals = selectedAccountTotals,
+            onBackClick = onBackClick,
+            onTimePeriodSelected = { viewModal.onTimePeriodSelected(it) },
+            onPreviousPeriod = { viewModal.onPreviousPeriod() },
+            onNextPeriod = { viewModal.onNextPeriod() },
+            getAccountIcon = { viewModal.getAccountIcon(it) },
+            getAccountTint = { viewModal.getAccountTint(it) }
+        )
+    }
+}
+
+@Composable
+private fun HistoryPortraitMode(
+    modifier: Modifier = Modifier,
+    uiState: HistoryUiState,
+    selectedCategoryType: Int,
+    onCategoryTypeSelected: (Int) -> Unit,
+    selectedPaymentType: String,
+    onPaymentTypeSelected: (String) -> Unit,
+    chartSlices: List<ChartSlice>,
+    selectedAccountTotals: List<AccountTotal>,
+    onBackClick: () -> Unit,
+    onTimePeriodSelected: (TimePeriod) -> Unit,
+    onPreviousPeriod: () -> Unit,
+    onNextPeriod: () -> Unit,
+    getAccountIcon: (String) -> ImageVector,
+    getAccountTint: (String) -> Color
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -92,145 +150,338 @@ fun HistoryScreen(
     ) {
         Spacer(Modifier.height(12.dp))
 
-        // Header
-        CommonTopBar(
-            heading = "History",
-            onStartClick = { onBackClick() }
+        HistoryHeaderSection(
+            uiState = uiState,
+            onBackClick = onBackClick,
+            onTimePeriodSelected = onTimePeriodSelected,
+            onPreviousPeriod = onPreviousPeriod,
+            onNextPeriod = onNextPeriod
         )
 
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(24.dp))
 
-        // Period selector
-        SegmentedSelector(
-            options = listOf("Week", "Month", "Year"),
-            selected = uiState.timePeriod.name
-                .lowercase()
-                .replaceFirstChar { it.uppercase() },
-            onSelected = { selected ->
-                val period = TimePeriod.valueOf(selected.uppercase())
-                viewModal.onTimePeriodSelected(period)
-            }
+        SummaryCard(
+            totalExpenses = uiState.totalExpenses,
+            totalIncome = uiState.totalIncome
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(24.dp))
 
-        // Year navigation card
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp)
+        CategoriesSection(
+            selectedCategoryType = selectedCategoryType,
+            onCategoryTypeSelected = onCategoryTypeSelected,
+            chartSlices = chartSlices
+        )
+
+        Spacer(Modifier.height(24.dp))
+
+        PaymentModesSection(
+            selectedPaymentType = selectedPaymentType,
+            onPaymentTypeSelected = onPaymentTypeSelected,
+            selectedAccountTotals = selectedAccountTotals,
+            getAccountIcon = getAccountIcon,
+            getAccountTint = getAccountTint
+        )
+
+        Spacer(Modifier.height(24.dp))
+
+        StatsSection(uiState = uiState)
+
+        Spacer(Modifier.height(50.dp))
+    }
+}
+
+@Composable
+private fun HistoryLandscapeMode(
+    modifier: Modifier = Modifier,
+    uiState: HistoryUiState,
+    selectedCategoryType: Int,
+    onCategoryTypeSelected: (Int) -> Unit,
+    selectedPaymentType: String,
+    onPaymentTypeSelected: (String) -> Unit,
+    chartSlices: List<ChartSlice>,
+    selectedAccountTotals: List<AccountTotal>,
+    onBackClick: () -> Unit,
+    onTimePeriodSelected: (TimePeriod) -> Unit,
+    onPreviousPeriod: () -> Unit,
+    onNextPeriod: () -> Unit,
+    getAccountIcon: (String) -> ImageVector,
+    getAccountTint: (String) -> Color
+) {
+    Row(
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(horizontal = 16.dp)
+    ) {
+        // Left pane – Header, Period Selector, Summary Card, Stats
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .padding(end = 8.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Spacer(Modifier.height(12.dp))
+
+            HistoryHeaderSection(
+                uiState = uiState,
+                onBackClick = onBackClick,
+                onTimePeriodSelected = onTimePeriodSelected,
+                onPreviousPeriod = onPreviousPeriod,
+                onNextPeriod = onNextPeriod
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            SummaryCard(
+                totalExpenses = uiState.totalExpenses,
+                totalIncome = uiState.totalIncome
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            StatsSection(uiState = uiState)
+
+            Spacer(Modifier.height(24.dp))
+        }
+
+        // Right pane – Categories and Payment Modes
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .padding(start = 8.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(Modifier.height(12.dp))
+
+            CategoriesSection(
+                selectedCategoryType = selectedCategoryType,
+                onCategoryTypeSelected = onCategoryTypeSelected,
+                chartSlices = chartSlices
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            PaymentModesSection(
+                selectedPaymentType = selectedPaymentType,
+                onPaymentTypeSelected = onPaymentTypeSelected,
+                selectedAccountTotals = selectedAccountTotals,
+                getAccountIcon = getAccountIcon,
+                getAccountTint = getAccountTint
+            )
+
+            Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun HistoryHeaderSection(
+    uiState: HistoryUiState,
+    onBackClick: () -> Unit,
+    onTimePeriodSelected: (TimePeriod) -> Unit,
+    onPreviousPeriod: () -> Unit,
+    onNextPeriod: () -> Unit
+) {
+    CommonTopBar(
+        heading = "History",
+        onStartClick = { onBackClick() }
+    )
+
+    Spacer(Modifier.height(14.dp))
+
+    SegmentedSelector(
+        options = listOf("Week", "Month", "Year"),
+        selected = uiState.timePeriod.name
+            .lowercase()
+            .replaceFirstChar { it.uppercase() },
+        onSelected = { selected ->
+            val period = TimePeriod.valueOf(selected.uppercase())
+            onTimePeriodSelected(period)
+        }
+    )
+
+    Spacer(Modifier.height(16.dp))
+
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "‹",
+                fontSize = 32.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.clickable {
+                    onPreviousPeriod()
+                }
+            )
+
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    "‹",
-                    fontSize = 32.sp,
+                    text = getPeriodLabel(
+                        uiState.timePeriod,
+                        uiState.selectedDate
+                    ),
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.clickable {
-                        viewModal.onPreviousPeriod()
-                    }
+                    fontWeight = FontWeight.Bold
                 )
+                Text(
+                    "${uiState.transactions.size} TRANSACTIONS",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally
+            Text(
+                "›",
+                fontSize = 32.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.clickable {
+                    onNextPeriod()
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun CategoriesSection(
+    selectedCategoryType: Int,
+    onCategoryTypeSelected: (Int) -> Unit,
+    chartSlices: List<ChartSlice>
+) {
+    SectionTitle("Categories")
+
+    Spacer(Modifier.height(12.dp))
+
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CommonTabSelector(
+                tabs = listOf("Spending", "Income"),
+                selectedTab = selectedCategoryType,
+                onTabSelected = onCategoryTypeSelected
+            )
+
+            Spacer(Modifier.height(6.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(0.85f),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularPieChart(
+                    slices = chartSlices,
+                    modifier = Modifier
+                        .fillMaxWidth(0.75f)
+                        .aspectRatio(1f)
+                )
+            }
+
+            Spacer(Modifier.height(26.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = getPeriodLabel(
-                            uiState.timePeriod,
-                            uiState.selectedDate
-                        ),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        "${uiState.transactions.size} TRANSACTIONS",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        "•••",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 16.sp
                     )
                 }
 
                 Text(
-                    "›",
-                    fontSize = 32.sp,
+                    "Others",
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.clickable {
-                        viewModal.onNextPeriod()
-                    }
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 12.dp)
+                )
+
+                Text(
+                    if (selectedCategoryType == 0)
+                        "₹3,00,000"
+                    else
+                        "₹51,55,22,935",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
+    }
+}
 
-        Spacer(Modifier.height(24.dp))
+@Composable
+private fun PaymentModesSection(
+    selectedPaymentType: String,
+    onPaymentTypeSelected: (String) -> Unit,
+    selectedAccountTotals: List<AccountTotal>,
+    getAccountIcon: (String) -> ImageVector,
+    getAccountTint: (String) -> Color
+) {
+    SectionTitle("Payment modes")
 
-        // Spending and income summary
-        SummaryCard(totalExpenses,totalIncome)
+    Spacer(Modifier.height(12.dp))
 
-        Spacer(Modifier.height(24.dp))
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp)
+    ) {
+        Column(Modifier.padding(20.dp)) {
+            SegmentedSelector(
+                options = listOf("Spending", "Income"),
+                selected = selectedPaymentType,
+                onSelected = onPaymentTypeSelected
+            )
 
-        SectionTitle("Categories")
+            Spacer(Modifier.height(20.dp))
 
-        Spacer(Modifier.height(12.dp))
-
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CommonTabSelector(
-                    tabs = listOf("Spending", "Income"),
-                    selectedTab = selectedCategoryType,
-                    onTabSelected = { selectedCategoryType = it }
-                )
-
-                Spacer(Modifier.height(6.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(0.85f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularPieChart(
-                        slices = chartSlices,
-                        modifier = Modifier
-                            .fillMaxWidth(0.75f)
-                            .aspectRatio(1f)
-                    )
-                }
-
-                Spacer(Modifier.height(26.dp))
-
-                //need to use the lazy row here later
+            selectedAccountTotals.forEach { account ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            "•••",
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 16.sp
-                        )
-                    }
+                    Icon(
+                        imageVector = getAccountIcon(account.accountIcon),
+                        contentDescription = account.accountName,
+                        tint = getAccountTint(account.accountName),
+                        modifier = Modifier.size(22.dp)
+                    )
 
                     Text(
-                        "Others",
+                        text = account.accountName,
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
@@ -239,87 +490,30 @@ fun HistoryScreen(
                     )
 
                     Text(
-                        if (selectedCategoryType == 0)
-                            "₹3,00,000"
-                        else
-                            "₹51,55,22,935",
+                        text = "₹${formatAmountToTwoDecimal(account.totalAmount)}",
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
                     )
                 }
+
+                Spacer(Modifier.height(16.dp))
             }
         }
-
-        Spacer(Modifier.height(24.dp))
-
-        SectionTitle("Payment modes")
-
-        Spacer(Modifier.height(12.dp))
-
-        ElevatedCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp)
-        ) {
-            Column(Modifier.padding(20.dp)) {
-                SegmentedSelector(
-                    options = listOf("Spending", "Income"),
-                    selected = selectedPaymentType,
-                    onSelected = { selectedPaymentType = it }
-                )
-
-                Spacer(Modifier.height(20.dp))
-
-                selectedAccountTotals.forEach { account ->
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = viewModal.getAccountIcon(account.accountIcon),
-                            contentDescription = account.accountName,
-                            tint = viewModal.getAccountTint(account.accountName),
-                            modifier = Modifier.size(22.dp)
-                        )
-
-                        Text(
-                            text = account.accountName,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 12.dp)
-                        )
-
-                        Text(
-                            text = "₹${formatAmountToTwoDecimal(account.totalAmount)}",
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Spacer(Modifier.height(16.dp))
-                }
-            }
-        }
-
-        Spacer(Modifier.height(24.dp))
-
-        SectionTitle("Stats")
-
-        Spacer(Modifier.height(12.dp))
-
-        StatsCard(uiState)
-
-        Spacer(Modifier.height(50.dp))
     }
 }
 
 @Composable
-private fun SummaryCard(totalExpenses: Double, totalIncome: Double) {
+private fun StatsSection(uiState: HistoryUiState) {
+    SectionTitle("Stats")
 
+    Spacer(Modifier.height(12.dp))
+
+    StatsCard(uiState)
+}
+
+@Composable
+private fun SummaryCard(totalExpenses: Double, totalIncome: Double) {
     val netBalance = totalIncome - totalExpenses
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
@@ -558,6 +752,4 @@ private fun getPeriodLabel(
         TimePeriod.YEAR ->
             date.year.toString()
     }
-
-
 }
