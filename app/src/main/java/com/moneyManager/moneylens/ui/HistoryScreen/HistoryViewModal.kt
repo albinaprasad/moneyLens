@@ -1,4 +1,4 @@
-package com.moneyManager.moneylens.ui.AnalysisAndHistoryScreen
+package com.moneyManager.moneylens.ui.HistoryScreen
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector

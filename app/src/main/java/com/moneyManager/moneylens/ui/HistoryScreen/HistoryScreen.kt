@@ -1,4 +1,4 @@
-package com.moneyManager.moneylens.ui.AnalysisAndHistoryScreen
+package com.moneyManager.moneylens.ui.HistoryScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

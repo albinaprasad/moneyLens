@@ -7,7 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.moneyManager.moneylens.enums.AppLaunchState
-import com.moneyManager.moneylens.ui.AnalysisAndHistoryScreen.HistoryScreen
+import com.moneyManager.moneylens.ui.HistoryScreen.HistoryScreen
 import com.moneyManager.moneylens.ui.SaveScreen.SaveScreen
 import com.moneyManager.moneylens.ui.Settings.SettingsScreen
 import com.moneyManager.moneylens.ui.StratergyScreen.StrategyScreen

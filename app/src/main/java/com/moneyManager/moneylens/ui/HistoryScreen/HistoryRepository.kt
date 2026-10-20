@@ -1,4 +1,4 @@
-package com.moneyManager.moneylens.ui.AnalysisAndHistoryScreen
+package com.moneyManager.moneylens.ui.HistoryScreen
 
 import com.moneyManager.moneylens.database.Entity.Account
 import com.moneyManager.moneylens.database.Entity.Category
