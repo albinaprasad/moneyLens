@@ -4,6 +4,7 @@ import androidx.compose.animation.core.EaseInQuart
 import androidx.compose.animation.core.EaseOutQuart
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,6 +50,25 @@ object AnimationManager {
         )
         return this.graphicsLayer {
             alpha = pixelAlpha
+        }
+    }
+
+    @Composable
+    fun Modifier.tabBounceAnimation(
+        selected: Boolean
+    ): Modifier {
+        val scale by animateFloatAsState(
+            targetValue = if (selected) 1.08f else 1f,
+            animationSpec = spring(
+                dampingRatio = 0.35f,
+                stiffness = 500f
+            ),
+            label = "tabBounce"
+        )
+
+        return graphicsLayer {
+            scaleX = scale
+            scaleY = scale
         }
     }
 

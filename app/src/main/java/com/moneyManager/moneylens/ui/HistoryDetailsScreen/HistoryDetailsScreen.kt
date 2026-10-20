@@ -366,21 +366,19 @@ private fun PeriodSelector(
     onPeriodSelected: (DetailsPeriod) -> Unit
 ) {
     val periods = listOf(
-        DetailsPeriod.THIS_MONTH,
         DetailsPeriod.LAST_MONTH,
         DetailsPeriod.THIS_YEAR,
         DetailsPeriod.CUSTOM
     )
 
     val labels = listOf(
-        "Month",
-        "Last Month",
+        "Week",
+        " Month",
         "Year",
-        "Custom"
     )
 
     ButtonGroup(
-        overflowIndicator = { /* No overflow button needed */ },
+        overflowIndicator = {  },
         modifier = Modifier.fillMaxWidth()
     ) {
         periods.forEachIndexed { index, period ->

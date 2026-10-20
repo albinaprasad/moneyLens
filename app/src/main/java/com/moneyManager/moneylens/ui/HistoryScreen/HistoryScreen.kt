@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moneyManager.moneylens.AnimationManager.AnimationManager.tabBounceAnimation
 import com.moneyManager.moneylens.DataClass.AccountTotal
 import com.moneyManager.moneylens.DataClass.ChartSlice
 import com.moneyManager.moneylens.DataClass.HistoryUiState
@@ -733,6 +734,7 @@ private fun SegmentedSelector(
             Box(
                 modifier = Modifier
                     .weight(1f)
+                    .tabBounceAnimation(selected = isSelected)
                     .clip(RoundedCornerShape(8.dp))
                     .background(
                         if (isSelected) MaterialTheme.colorScheme.primary
