@@ -111,7 +111,9 @@ fun AppNavHost(navController: NavHostController) {
         }
 
         composable<AppScreens.HistoryDetailsScreen>{
-            HistoryDetailsScreen()
+            HistoryDetailsScreen(onBackClick = {
+                navController.popBackStack()
+            })
         }
     }
 }
