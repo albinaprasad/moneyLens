@@ -119,7 +119,7 @@ fun HistoryDetailsScreen(
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate()
 
-            when (uiState.timePeriod) {
+            when (selectedPeriod) {
                 TimePeriod.WEEK ->
                     date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
 
@@ -131,7 +131,7 @@ fun HistoryDetailsScreen(
         .toSortedMap(compareByDescending { it })
         .map { (date, transactions) ->
             TransactionGroup(
-                title = getPeriodLabel(uiState.timePeriod, date),
+                title = getPeriodLabel(selectedPeriod, date),
                 transactions = transactions
             )
         }
@@ -165,8 +165,8 @@ fun HistoryDetailsScreen(
                 Spacer(Modifier.height(24.dp))
 
                 PeriodSelector(
-                    selectedPeriod = uiState.timePeriod, onPeriodSelected = {
-                        viewModal.onTimePeriodSelected(it)
+                    selectedPeriod = selectedPeriod, onPeriodSelected = {
+                        selectedPeriod = it
                     })
 
                 Spacer(Modifier.height(30.dp))
@@ -529,14 +529,12 @@ private fun getPeriodLabel(
     return when (period) {
         TimePeriod.WEEK -> {
             val start = date.with(
-                TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY)
+                TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
             )
             val end = start.plusDays(6)
 
-            "${start.dayOfMonth} ${start.month.name.lowercase()
-                .replaceFirstChar { it.uppercase() }} – " +
-                    "${end.dayOfMonth} ${end.month.name.lowercase()
-                        .replaceFirstChar { it.uppercase() }} ${end.year}"
+            "${start.format(DateTimeFormatter.ofPattern("dd MMM"))} – " +
+                    end.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
         }
 
         TimePeriod.MONTH ->
