@@ -45,3 +45,12 @@ data class AccountTotal(
     val totalAmount: Double
 )
 
+// FOR THE HISTORY DETAILS SCREEN
+
+ data class TransactionGroup(
+    val title: String,
+    val transactions: List<Transaction>
+) {
+    val total: Double
+        get() = transactions.sumOf { it.amount }
+}

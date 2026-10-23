@@ -27,6 +27,11 @@ sealed class AppScreens {
     @Serializable object AboutRoute: AppScreens()
     @Serializable object HistoryScreen: AppScreens()
 
-    @Serializable object HistoryDetailsScreen: AppScreens()
-
+    @Serializable
+    data object HistoryGraph: AppScreens()
+    @Serializable
+    data class HistoryDetailsScreen(
+        val categoryId: Int,
+        val type: String
+    ) : AppScreens()
 }

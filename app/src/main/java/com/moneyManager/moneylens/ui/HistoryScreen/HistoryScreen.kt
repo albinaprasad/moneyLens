@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moneyManager.moneylens.AnimationManager.AnimationManager.tabBounceAnimation
 import com.moneyManager.moneylens.DataClass.AccountTotal
@@ -61,9 +60,10 @@ import java.time.temporal.TemporalAdjusters
 fun HistoryScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {},
-    onCategoryClick: (String) -> Unit = {}
+    onNavigateToHistoryDetails: (Int, String) -> Unit = { _, _ -> },
+    viewModal: HistoryViewModal
 ) {
-    val viewModal: HistoryViewModal = hiltViewModel()
+
     val uiState by viewModal.historyUiState.collectAsStateWithLifecycle()
     var selectedCategoryType by remember { mutableIntStateOf(0) }
     var selectedPaymentType by remember { mutableStateOf("Spending") }
@@ -90,6 +90,13 @@ fun HistoryScreen(
             uiState.accountIncomes
         }
 
+
+    val selectedCategories = if (selectedCategoryType == 0) {
+        uiState.categoryExpenses
+    } else {
+        uiState.categoryIncomes
+    }
+
     if (isLandscape()) {
         HistoryLandscapeMode(
             modifier = modifier,
@@ -106,7 +113,24 @@ fun HistoryScreen(
             onNextPeriod = { viewModal.onNextPeriod() },
             getAccountIcon = { viewModal.getAccountIcon(it) },
             getAccountTint = { viewModal.getAccountTint(it) },
-            onCategoryClick = onCategoryClick
+            onCategoryClick = { categoryName ->
+                val category = selectedCategories.find {
+                    it.categoryName == categoryName
+                }
+
+                if (category != null) {
+                    val type = if (selectedCategoryType == 0) {
+                        "EXPENSE"
+                    } else {
+                        "INCOME"
+                    }
+
+                    onNavigateToHistoryDetails(
+                        category.categoryId,
+                        type
+                    )
+                }
+            }
         )
     } else {
         HistoryPortraitMode(
@@ -124,7 +148,24 @@ fun HistoryScreen(
             onNextPeriod = { viewModal.onNextPeriod() },
             getAccountIcon = { viewModal.getAccountIcon(it) },
             getAccountTint = { viewModal.getAccountTint(it) },
-            onCategoryClick = onCategoryClick
+            onCategoryClick = { categoryName ->
+                val category = selectedCategories.find {
+                    it.categoryName == categoryName
+                }
+
+                if (category != null) {
+                    val type = if (selectedCategoryType == 0) {
+                        "EXPENSE"
+                    } else {
+                        "INCOME"
+                    }
+
+                    onNavigateToHistoryDetails(
+                        category.categoryId,
+                        type
+                    )
+                }
+            }
         )
     }
 }
@@ -433,7 +474,7 @@ private fun CategoriesSection(
                                 .size(38.dp)
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(slice.color.copy(alpha = 0.2f))
-                                .clickable{
+                                .clickable {
                                     onCategoryClick(slice.name)
                                 },
                             contentAlignment = Alignment.Center

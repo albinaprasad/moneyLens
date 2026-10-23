@@ -3,12 +3,17 @@ package com.moneyManager.moneylens.navigation
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
 import com.moneyManager.moneylens.enums.AppLaunchState
 import com.moneyManager.moneylens.ui.AnalysisAndHistoryScreen.HistoryDetailsScreen
 import com.moneyManager.moneylens.ui.HistoryScreen.HistoryScreen
+import com.moneyManager.moneylens.ui.HistoryScreen.HistoryViewModal
 import com.moneyManager.moneylens.ui.SaveScreen.SaveScreen
 import com.moneyManager.moneylens.ui.Settings.SettingsScreen
 import com.moneyManager.moneylens.ui.StratergyScreen.StrategyScreen
@@ -102,18 +107,53 @@ fun AppNavHost(navController: NavHostController) {
             )
         }
 
-        composable<AppScreens.HistoryScreen> {
-            HistoryScreen(onBackClick={
-                navController.popBackStack()
-            }, onCategoryClick = {
-                navController.navigate(AppScreens.HistoryDetailsScreen)
-            })
-        }
+        navigation<AppScreens.HistoryGraph>(
+            startDestination = AppScreens.HistoryScreen
+        ) {
+            composable<AppScreens.HistoryScreen> { backStackEntry ->
 
-        composable<AppScreens.HistoryDetailsScreen>{
-            HistoryDetailsScreen(onBackClick = {
-                navController.popBackStack()
-            })
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry<AppScreens.HistoryGraph>()
+                }
+
+                val viewModal: HistoryViewModal = hiltViewModel(parentEntry)
+
+                HistoryScreen(
+                    viewModal = viewModal,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToHistoryDetails = { categoryId, type ->
+                        navController.navigate(
+                            AppScreens.HistoryDetailsScreen(
+                                categoryId = categoryId,
+                                type = type
+                            )
+                        )
+                    }
+                )
+            }
+
+            composable<AppScreens.HistoryDetailsScreen> { backStackEntry ->
+
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry<AppScreens.HistoryGraph>()
+                }
+
+                val viewModal: HistoryViewModal = hiltViewModel(parentEntry)
+
+                val route =
+                    backStackEntry.toRoute<AppScreens.HistoryDetailsScreen>()
+
+                HistoryDetailsScreen(
+                    viewModal = viewModal,
+                    categoryId = route.categoryId,
+                    type = route.type,
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
     }
 }

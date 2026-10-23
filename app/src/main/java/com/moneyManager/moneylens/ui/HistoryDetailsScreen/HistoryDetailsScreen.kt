@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,10 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Checkroom
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.ShoppingBag
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -31,7 +29,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,134 +39,82 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moneyManager.moneylens.DataClass.TransactionGroup
+import com.moneyManager.moneylens.database.Entity.Transaction
+import com.moneyManager.moneylens.ui.HistoryScreen.HistoryViewModal
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
 import com.moneyManager.moneylens.ui.utils.formatAmountToTwoDecimal
 
 private enum class DetailsPeriod {
-    THIS_MONTH,
-    LAST_MONTH,
-    THIS_YEAR,
-    CUSTOM
+    THIS_MONTH, LAST_MONTH, THIS_YEAR, CUSTOM
 }
-
-private data class SampleTransaction(
-    val id: Int,
-    val title: String,
-    val subtitle: String,
-    val amount: Double,
-    val time: String,
-    val icon: ImageVector,
-    val color: Color
-)
-
-private data class TransactionGroup(
-    val title: String,
-    val total: Double,
-    val transactions: List<SampleTransaction>
-)
 
 // Accent colors matching the History screen's category styling.
 private val shoppingPink = Color(0xFFD45F65)
-private val shoppingBlue = Color(0xFF3994D8)
-
-private val shoppingGroups = listOf(
-    TransactionGroup(
-        title = "Today",
-        total = 2850.0,
-        transactions = listOf(
-            SampleTransaction(
-                1, "Amazon", "Online Shopping",
-                1299.0, "5:24 PM",
-                Icons.Default.ShoppingCart, shoppingBlue
-            ),
-            SampleTransaction(
-                2, "Myntra", "Clothing",
-                1550.0, "11:12 AM",
-                Icons.Default.ShoppingBag, shoppingPink
-            )
-        )
-    ),
-    TransactionGroup(
-        title = "Yesterday",
-        total = 1320.0,
-        transactions = listOf(
-            SampleTransaction(
-                3, "Flipkart", "Online Shopping",
-                850.0, "7:40 PM",
-                Icons.Default.ShoppingCart, shoppingBlue
-            ),
-            SampleTransaction(
-                4, "Zudio", "Clothing",
-                470.0, "2:15 PM",
-                Icons.Default.ShoppingBag, shoppingPink
-            )
-        )
-    ),
-    TransactionGroup(
-        title = "12 Oct 2026, Sun",
-        total = 3260.0,
-        transactions = listOf(
-            SampleTransaction(
-                5, "Amazon", "Online Shopping",
-                2199.0, "6:30 PM",
-                Icons.Default.ShoppingCart, shoppingBlue
-            ),
-            SampleTransaction(
-                6, "Lifestyle", "Fashion",
-                1061.0, "12:18 PM",
-                Icons.Default.Checkroom, shoppingPink
-            )
-        )
-    ),
-    TransactionGroup(
-        title = "10 Oct 2026, Fri",
-        total = 1450.0,
-        transactions = listOf(
-            SampleTransaction(
-                7, "Westside", "Fashion",
-                1450.0, "4:22 PM",
-                Icons.Default.Checkroom, shoppingPink
-            )
-        )
-    )
-)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HistoryDetailsScreen(
     modifier: Modifier = Modifier,
-    onBackClick: () -> Unit = {},
+    viewModal: HistoryViewModal,
+    categoryId: Int,
+    type: String,
+    onBackClick: () -> Unit,
     onTransactionClick: (Int) -> Unit = {}
 ) {
+
+    val uiState by viewModal.historyUiState.collectAsStateWithLifecycle()
+    val categoryTransactions = uiState.transactions.filter { transaction ->
+        transaction.categoryId == categoryId && transaction.type == type
+    }
+
+    val categoryTotalAmount = categoryTransactions.sumOf { transaction ->
+        transaction.amount
+    }
+
     var selectedPeriod by remember {
         mutableStateOf(DetailsPeriod.THIS_MONTH)
     }
 
-    val total = when (selectedPeriod) {
-        DetailsPeriod.THIS_MONTH -> 12450.0
-        DetailsPeriod.LAST_MONTH -> 9850.0
-        DetailsPeriod.THIS_YEAR -> 28450.0
-        DetailsPeriod.CUSTOM -> 4850.0
+    val count = categoryTransactions.size
+
+    val overallTotal = if (type == "EXPENSE") {
+        uiState.totalExpenses
+    } else {
+        uiState.totalIncome
     }
 
-    val count = when (selectedPeriod) {
-        DetailsPeriod.THIS_MONTH -> 15
-        DetailsPeriod.LAST_MONTH -> 12
-        DetailsPeriod.THIS_YEAR -> 42
-        DetailsPeriod.CUSTOM -> 4
+    val percentage = if (overallTotal > 0.0) {
+        ((categoryTotalAmount / overallTotal) * 100).toInt()
+    } else {
+        0
     }
 
-    val percentage = when (selectedPeriod) {
-        DetailsPeriod.THIS_MONTH -> 26
-        DetailsPeriod.LAST_MONTH -> 19
-        DetailsPeriod.THIS_YEAR -> 32
-        DetailsPeriod.CUSTOM -> 12
+    val selectedCategory = (if (type == "EXPENSE") {
+        uiState.categoryExpenses
+    } else {
+        uiState.categoryIncomes
+    }).find {
+        it.categoryId == categoryId
+    }
+
+    val transactionGroups = categoryTransactions.groupBy { transaction ->
+        java.time.Instant.ofEpochMilli(transaction.date).atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+    }.toSortedMap(compareByDescending { it }).map { (date, transactions) ->
+        TransactionGroup(
+            title = date.format(
+                java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")
+            ), transactions = transactions
+        )
     }
 
     Column(
@@ -179,42 +124,44 @@ fun HistoryDetailsScreen(
             .statusBarsPadding()
     ) {
         CommonTopBar(
-            heading = "Shopping",
-            onStartClick = { onBackClick() }
-        )
+            heading = "History Details ", onStartClick = { onBackClick() })
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                end = 16.dp,
-                top = 12.dp,
-                bottom = 32.dp
+            modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(
+                start = 16.dp, end = 16.dp, top = 12.dp, bottom = 32.dp
             )
         ) {
             item {
                 CategorySummaryCard(
-                    total = total,
+                    total = categoryTotalAmount,
                     count = count,
-                    percentage = percentage
+                    percentage = percentage,
+                    categoryName = selectedCategory?.categoryName ?: "Category",
+                    categoryIcon = viewModal.getCategoryIcon(
+                        selectedCategory?.icon.orEmpty()
+                    ),
+                    categoryColor = Color(selectedCategory?.color ?: android.graphics.Color.GRAY)
                 )
 
                 Spacer(Modifier.height(24.dp))
 
                 PeriodSelector(
-                    selectedPeriod = selectedPeriod,
-                    onPeriodSelected = { selectedPeriod = it }
-                )
+                    selectedPeriod = selectedPeriod, onPeriodSelected = { selectedPeriod = it })
 
                 Spacer(Modifier.height(30.dp))
             }
 
             items(
-                items = shoppingGroups,
-                key = { it.title }
-            ) { group ->
+                items = transactionGroups, key = { it.title }) { group ->
                 TransactionGroupSection(
                     group = group,
+                    categoryName = selectedCategory?.categoryName ?: "Unknown",
+                    categoryIcon = viewModal.getCategoryIcon(
+                        selectedCategory?.icon.orEmpty()
+                    ),
+                    categoryColor = Color(
+                        selectedCategory?.color ?: android.graphics.Color.GRAY
+                    ),
                     onTransactionClick = onTransactionClick
                 )
 
@@ -228,7 +175,10 @@ fun HistoryDetailsScreen(
 private fun CategorySummaryCard(
     total: Double,
     count: Int,
-    percentage: Int
+    percentage: Int,
+    categoryName: String,
+    categoryIcon: ImageVector,
+    categoryColor: Color
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
@@ -243,20 +193,19 @@ private fun CategorySummaryCard(
                 .padding(20.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
                         .size(58.dp)
                         .clip(RoundedCornerShape(14.dp))
-                        .background(shoppingPink.copy(alpha = 0.2f)),
+                        .background(categoryColor.copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ShoppingBag,
+                        imageVector = categoryIcon,
                         contentDescription = "Shopping",
-                        tint = shoppingPink,
+                        tint = categoryColor,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -267,7 +216,7 @@ private fun CategorySummaryCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "Shopping",
+                        text = categoryName,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -307,14 +256,10 @@ private fun CategorySummaryCard(
 
             Spacer(Modifier.height(22.dp))
 
-            LinearProgressIndicator(
-                progress = { percentage / 100f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(7.dp)
-                    .clip(CircleShape),
-                color = shoppingPink,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            GradientProgressBar(
+                percentage = percentage / 100f  ,
+                categoryColor
+
             )
 
             Spacer(Modifier.height(8.dp))
@@ -333,13 +278,10 @@ private fun CategorySummaryCard(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PeriodSelector(
-    selectedPeriod: DetailsPeriod,
-    onPeriodSelected: (DetailsPeriod) -> Unit
+    selectedPeriod: DetailsPeriod, onPeriodSelected: (DetailsPeriod) -> Unit
 ) {
     val periods = listOf(
-        DetailsPeriod.LAST_MONTH,
-        DetailsPeriod.THIS_YEAR,
-        DetailsPeriod.CUSTOM
+        DetailsPeriod.LAST_MONTH, DetailsPeriod.THIS_YEAR, DetailsPeriod.CUSTOM
     )
 
     val labels = listOf(
@@ -349,17 +291,13 @@ private fun PeriodSelector(
     )
 
     ButtonGroup(
-        overflowIndicator = {  },
-        modifier = Modifier.fillMaxWidth()
+        overflowIndicator = { }, modifier = Modifier.fillMaxWidth()
     ) {
         periods.forEachIndexed { index, period ->
             toggleableItem(
-                checked = selectedPeriod == period,
-                onCheckedChange = { checked ->
+                checked = selectedPeriod == period, onCheckedChange = { checked ->
                     if (checked) onPeriodSelected(period)
-                },
-                label = labels[index],
-                weight = 1f
+                }, label = labels[index], weight = 1f
             )
         }
     }
@@ -368,6 +306,9 @@ private fun PeriodSelector(
 @Composable
 private fun TransactionGroupSection(
     group: TransactionGroup,
+    categoryName: String,
+    categoryIcon: ImageVector,
+    categoryColor: Color,
     onTransactionClick: (Int) -> Unit
 ) {
     Column {
@@ -396,10 +337,12 @@ private fun TransactionGroupSection(
         group.transactions.forEach { transaction ->
             TransactionCard(
                 transaction = transaction,
+                categoryName = categoryName,
+                categoryIcon = categoryIcon,
+                categoryColor = categoryColor,
                 onClick = {
                     onTransactionClick(transaction.id)
-                }
-            )
+                })
 
             Spacer(Modifier.height(8.dp))
         }
@@ -408,9 +351,18 @@ private fun TransactionGroupSection(
 
 @Composable
 private fun TransactionCard(
-    transaction: SampleTransaction,
-    onClick: () -> Unit
+    transaction: Transaction,
+    onClick: () -> Unit,
+    categoryIcon: ImageVector,
+    categoryColor: Color,
+    categoryName: String,
 ) {
+    val transactionDate =
+        java.time.Instant.ofEpochMilli(transaction.date).atZone(java.time.ZoneId.systemDefault())
+            .format(
+                java.time.format.DateTimeFormatter.ofPattern("hh:mm a")
+            )
+
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -424,24 +376,20 @@ private fun TransactionCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = 14.dp,
-                    end = 4.dp,
-                    top = 14.dp,
-                    bottom = 14.dp
-                ),
-            verticalAlignment = Alignment.CenterVertically
+                    start = 14.dp, end = 4.dp, top = 14.dp, bottom = 14.dp
+                ), verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(transaction.color.copy(alpha = 0.2f)),
+                    .background(categoryColor.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = transaction.icon,
-                    contentDescription = transaction.title,
-                    tint = transaction.color,
+                    imageVector = categoryIcon,
+                    contentDescription = null,
+                    tint = categoryColor,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -452,7 +400,7 @@ private fun TransactionCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = transaction.title,
+                    text = categoryName,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -463,7 +411,7 @@ private fun TransactionCard(
                 Spacer(Modifier.height(4.dp))
 
                 Text(
-                    text = transaction.subtitle,
+                    text = transaction.note,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -487,7 +435,7 @@ private fun TransactionCard(
                 Spacer(Modifier.height(4.dp))
 
                 Text(
-                    text = transaction.time,
+                    text = transactionDate,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -501,5 +449,37 @@ private fun TransactionCard(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun GradientProgressBar(
+    percentage: Float, categoryColor: Color, modifier: Modifier = Modifier
+) {
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(7.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(percentage)
+                .fillMaxHeight()
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            categoryColor.copy(alpha = 0.45f), categoryColor, Color(
+                                red = categoryColor.red * 0.75f,
+                                green = categoryColor.green * 0.75f,
+                                blue = categoryColor.blue * 0.75f,
+                                alpha = categoryColor.alpha
+                            )
+                        )
+                    ), shape = CircleShape
+                )
+        )
     }
 }
