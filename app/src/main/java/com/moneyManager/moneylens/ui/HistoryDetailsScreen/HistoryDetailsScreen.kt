@@ -71,14 +71,14 @@ fun HistoryDetailsScreen(
     modifier: Modifier = Modifier,
     viewModal: HistoryViewModal,
     categoryId: Int,
-    type: String,
+    categoryType: String,
     onBackClick: () -> Unit,
     onTransactionClick: (Int) -> Unit = {}
 ) {
 
     val uiState by viewModal.historyUiState.collectAsStateWithLifecycle()
     val categoryTransactions = uiState.transactions.filter { transaction ->
-        transaction.categoryId == categoryId && transaction.type == type
+        transaction.categoryId == categoryId && transaction.type == categoryType
     }
 
     // each category total amount
@@ -93,7 +93,7 @@ fun HistoryDetailsScreen(
     val count = categoryTransactions.size
 
     // Total amount spend or recieved
-    val overallTotal = if (type == "EXPENSE") {
+    val overallTotal = if (categoryType == "EXPENSE") {
         uiState.totalExpenses
     } else {
         uiState.totalIncome
@@ -105,7 +105,7 @@ fun HistoryDetailsScreen(
         0
     }
 
-    val selectedCategory = (if (type == "EXPENSE") {
+    val selectedCategory = (if (categoryType == "EXPENSE") {
         uiState.categoryExpenses
     } else {
         uiState.categoryIncomes
@@ -155,6 +155,7 @@ fun HistoryDetailsScreen(
                     total = categoryTotalAmount,
                     count = count,
                     percentage = percentage,
+                    categoryType = categoryType,
                     categoryName = selectedCategory?.categoryName ?: "Category",
                     categoryIcon = viewModal.getCategoryIcon(
                         selectedCategory?.icon.orEmpty()
@@ -199,7 +200,8 @@ private fun CategorySummaryCard(
     percentage: Int,
     categoryName: String,
     categoryIcon: ImageVector,
-    categoryColor: Color
+    categoryColor: Color,
+    categoryType: String
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
@@ -258,7 +260,7 @@ private fun CategorySummaryCard(
                     horizontalAlignment = Alignment.End
                 ) {
                     Text(
-                        text = "Total Spent",
+                        text = if (categoryType == "EXPENSE") "Total Spent" else "Total Received",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

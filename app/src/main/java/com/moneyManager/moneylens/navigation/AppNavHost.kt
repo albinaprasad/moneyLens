@@ -142,13 +142,12 @@ fun AppNavHost(navController: NavHostController) {
 
                 val viewModal: HistoryViewModal = hiltViewModel(parentEntry)
 
-                val route =
-                    backStackEntry.toRoute<AppScreens.HistoryDetailsScreen>()
+                val route = backStackEntry.toRoute<AppScreens.HistoryDetailsScreen>()
 
                 HistoryDetailsScreen(
                     viewModal = viewModal,
                     categoryId = route.categoryId,
-                    type = route.type,
+                    categoryType = route.type,
                     onBackClick = {
                         navController.popBackStack()
                     }
