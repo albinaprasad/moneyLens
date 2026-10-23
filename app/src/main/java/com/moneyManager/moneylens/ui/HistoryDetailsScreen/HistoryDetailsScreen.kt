@@ -47,18 +47,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moneyManager.moneylens.DataClass.TimePeriod
 import com.moneyManager.moneylens.DataClass.TransactionGroup
 import com.moneyManager.moneylens.database.Entity.Transaction
 import com.moneyManager.moneylens.ui.HistoryScreen.HistoryViewModal
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
+import com.moneyManager.moneylens.ui.theme.GreenText
+import com.moneyManager.moneylens.ui.theme.SavingsTint
 import com.moneyManager.moneylens.ui.utils.formatAmountToTwoDecimal
+import java.time.DayOfWeek
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 
-private enum class DetailsPeriod {
-    THIS_MONTH, LAST_MONTH, THIS_YEAR, CUSTOM
-}
 
 // Accent colors matching the History screen's category styling.
-private val shoppingPink = Color(0xFFD45F65)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -76,16 +81,18 @@ fun HistoryDetailsScreen(
         transaction.categoryId == categoryId && transaction.type == type
     }
 
+    // each category total amount
     val categoryTotalAmount = categoryTransactions.sumOf { transaction ->
         transaction.amount
     }
 
     var selectedPeriod by remember {
-        mutableStateOf(DetailsPeriod.THIS_MONTH)
+        mutableStateOf(TimePeriod.MONTH)
     }
 
     val count = categoryTransactions.size
 
+    // Total amount spend or recieved
     val overallTotal = if (type == "EXPENSE") {
         uiState.totalExpenses
     } else {
@@ -106,16 +113,28 @@ fun HistoryDetailsScreen(
         it.categoryId == categoryId
     }
 
-    val transactionGroups = categoryTransactions.groupBy { transaction ->
-        java.time.Instant.ofEpochMilli(transaction.date).atZone(java.time.ZoneId.systemDefault())
-            .toLocalDate()
-    }.toSortedMap(compareByDescending { it }).map { (date, transactions) ->
-        TransactionGroup(
-            title = date.format(
-                java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")
-            ), transactions = transactions
-        )
-    }
+    val transactionGroups = categoryTransactions
+        .groupBy { transaction ->
+            val date = Instant.ofEpochMilli(transaction.date)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+
+            when (uiState.timePeriod) {
+                TimePeriod.WEEK ->
+                    date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
+
+                TimePeriod.MONTH -> date.withDayOfMonth(1)
+
+                TimePeriod.YEAR -> date.withDayOfYear(1)
+            }
+        }
+        .toSortedMap(compareByDescending { it })
+        .map { (date, transactions) ->
+            TransactionGroup(
+                title = getPeriodLabel(uiState.timePeriod, date),
+                transactions = transactions
+            )
+        }
 
     Column(
         modifier = modifier
@@ -146,7 +165,9 @@ fun HistoryDetailsScreen(
                 Spacer(Modifier.height(24.dp))
 
                 PeriodSelector(
-                    selectedPeriod = selectedPeriod, onPeriodSelected = { selectedPeriod = it })
+                    selectedPeriod = uiState.timePeriod, onPeriodSelected = {
+                        viewModal.onTimePeriodSelected(it)
+                    })
 
                 Spacer(Modifier.height(30.dp))
             }
@@ -248,7 +269,7 @@ private fun CategorySummaryCard(
                         text = "₹${formatAmountToTwoDecimal(total)}",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = shoppingPink,
+                        color = SavingsTint,
                         maxLines = 1
                     )
                 }
@@ -278,15 +299,16 @@ private fun CategorySummaryCard(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PeriodSelector(
-    selectedPeriod: DetailsPeriod, onPeriodSelected: (DetailsPeriod) -> Unit
+    selectedPeriod: TimePeriod, onPeriodSelected: (TimePeriod) -> Unit
 ) {
+
     val periods = listOf(
-        DetailsPeriod.LAST_MONTH, DetailsPeriod.THIS_YEAR, DetailsPeriod.CUSTOM
+        TimePeriod.WEEK, TimePeriod.MONTH, TimePeriod.YEAR
     )
 
     val labels = listOf(
         "Week",
-        " Month",
+        "Month",
         "Year",
     )
 
@@ -357,11 +379,18 @@ private fun TransactionCard(
     categoryColor: Color,
     categoryName: String,
 ) {
-    val transactionDate =
+    val transactionTime =
         java.time.Instant.ofEpochMilli(transaction.date).atZone(java.time.ZoneId.systemDefault())
             .format(
                 java.time.format.DateTimeFormatter.ofPattern("hh:mm a")
             )
+
+    val transactionDate =
+        java.time.Instant.ofEpochMilli(transaction.date).atZone(java.time.ZoneId.systemDefault())
+            .format(
+                java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy")
+            )
+
 
     ElevatedCard(
         modifier = Modifier
@@ -399,24 +428,27 @@ private fun TransactionCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = categoryName,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                if (transaction.note.isNotBlank()) {
+                    Text(
+                        text = transaction.note,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
 
                 Spacer(Modifier.height(4.dp))
 
-                Text(
-                    text = transaction.note,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                    Text(
+                        text = transactionDate,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
             }
 
             Spacer(Modifier.width(6.dp))
@@ -425,17 +457,23 @@ private fun TransactionCard(
                 horizontalAlignment = Alignment.End
             ) {
                 Text(
-                    text = "− ₹${formatAmountToTwoDecimal(transaction.amount)}",
+                    text = "${if (transaction.type == "EXPENSE") "−" else "+"} ₹${
+                        formatAmountToTwoDecimal(transaction.amount)
+                    }",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = if (transaction.type == "EXPENSE") {
+                        Color.Red
+                    } else {
+                        GreenText
+                    },
                     maxLines = 1
                 )
 
                 Spacer(Modifier.height(4.dp))
 
                 Text(
-                    text = transactionDate,
+                    text = transactionTime,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -481,5 +519,30 @@ fun GradientProgressBar(
                     ), shape = CircleShape
                 )
         )
+    }
+}
+
+private fun getPeriodLabel(
+    period: TimePeriod,
+    date: LocalDate
+): String {
+    return when (period) {
+        TimePeriod.WEEK -> {
+            val start = date.with(
+                TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY)
+            )
+            val end = start.plusDays(6)
+
+            "${start.dayOfMonth} ${start.month.name.lowercase()
+                .replaceFirstChar { it.uppercase() }} – " +
+                    "${end.dayOfMonth} ${end.month.name.lowercase()
+                        .replaceFirstChar { it.uppercase() }} ${end.year}"
+        }
+
+        TimePeriod.MONTH ->
+            date.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+
+        TimePeriod.YEAR ->
+            date.year.toString()
     }
 }

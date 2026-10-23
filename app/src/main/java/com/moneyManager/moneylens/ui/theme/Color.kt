@@ -89,3 +89,7 @@ val CashTint = Color(0xFF4CAF50)
 val BankTint = Color(0xFF2196F3)
 val SavingsTint = Color(0xFFFF9800)
 val DefaultAccountTint = Color.Gray
+
+ val shoppingPink = Color(0xFFD45F65)
+
+val GreenText = Color(0xFF2E7D32) // Green
