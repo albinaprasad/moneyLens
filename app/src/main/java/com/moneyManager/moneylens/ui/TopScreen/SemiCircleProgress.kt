@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -140,12 +141,27 @@ fun BudgetProgressCard(
         ) {
             val trackColor = MaterialTheme.colorScheme.surfaceVariant
             val progressColor = accentColor
-            
+            val progressGradient = Brush.horizontalGradient(
+                colors = listOf(
+                    androidx.compose.ui.graphics.lerp(
+                        progressColor,
+                        Color.White,
+                        0.35f
+                    ),
+                    progressColor,
+                    androidx.compose.ui.graphics.lerp(
+                        progressColor,
+                        Color.Black,
+                        0.20f
+                    )
+                )
+            )
+
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val strokeWidth = 14.dp.toPx()
                 val padding = strokeWidth / 2
                 val arcDiameter = size.width - strokeWidth
-                
+
                 // Track
                 drawArc(
                     color = trackColor,
@@ -157,16 +173,18 @@ fun BudgetProgressCard(
                     style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
                 )
 
-                // Progress
-                drawArc(
-                    color = progressColor,
-                    startAngle = 180f,
-                    sweepAngle = progress * 180f,
-                    useCenter = false,
-                    topLeft = Offset(padding, padding),
-                    size = Size(arcDiameter, arcDiameter),
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                )
+                // Progress with Gradient
+                if (progress > 0f) {
+                    drawArc(
+                        brush = progressGradient,
+                        startAngle = 180f,
+                        sweepAngle = progress * 180f,
+                        useCenter = false,
+                        topLeft = Offset(padding, padding),
+                        size = Size(arcDiameter, arcDiameter),
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                    )
+                }
             }
 
             Column(
