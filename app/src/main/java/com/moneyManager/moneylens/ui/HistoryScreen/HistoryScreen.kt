@@ -466,17 +466,18 @@ private fun CategoriesSection(
             } else {
                 chartSlices.forEach { slice ->
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth()
+                            .clickable {
+                                onCategoryClick(slice.name)
+                            },
+                        verticalAlignment = Alignment.CenterVertically,
+
                     ) {
                         Box(
                             modifier = Modifier
                                 .size(38.dp)
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(slice.color.copy(alpha = 0.2f))
-                                .clickable {
-                                    onCategoryClick(slice.name)
-                                },
+                                .background(slice.color.copy(alpha = 0.2f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
