@@ -37,16 +37,36 @@ fun BottomBar(
         modifier = Modifier.fillMaxWidth()) {
         bottomNavItems.forEachIndexed { index, item ->
             val isSelected = selectedItem == index
-            
+            val route = when (index) {
+                0 -> AppScreens.TopScreen
+                1 -> AppScreens.HistoryScreen
+                2 -> AppScreens.HistoryScreen
+                3 -> AppScreens.SettingsScreen
+                else -> return@forEachIndexed
+            }
+
             NavigationBarItem(
                 modifier = Modifier
                     .fillMaxWidth()
                 ,
                 selected = isSelected,
-                onClick = { 
+                onClick = {
+                    val currentRoute = bottomNavController
+                        .currentBackStackEntry
+                        ?.destination
+                        ?.route
+
+                    if (currentRoute != route::class.qualifiedName) {
+                        bottomNavController.navigate(route) {
+                            popUpTo(bottomNavController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+
                     selectedItem = index
-                    // Navigation logic:
-                     bottomNavController.navigate(AppScreens.HistoryScreen)
                 },
                 interactionSource = remember { MutableInteractionSource() },
                 icon = {
