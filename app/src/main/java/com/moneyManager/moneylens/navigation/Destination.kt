@@ -34,4 +34,7 @@ sealed class AppScreens {
         val categoryId: Int,
         val type: String
     ) : AppScreens()
+
+    @Serializable
+    object CategoryEditScreen: AppScreens()
 }

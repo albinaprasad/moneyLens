@@ -1,0 +1,527 @@
+package com.moneyManager.moneylens.ui.CategoryEditScreen
+
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.CardGiftcard
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.FlightTakeoff
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocalGroceryStore
+import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.material.icons.filled.Work
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.moneyManager.moneylens.ui.commonUiElements.CommonTabSelector
+import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
+
+private data class CategoryUiItem(
+    val name: String,
+    val icon: ImageVector,
+    val tint: Color,
+    val iconBackground: Color
+)
+
+// Hardcoded expense categories with pastel colors.
+private val expenseCategories = listOf(
+    CategoryUiItem(
+        "Bills and Utilities",
+        Icons.Default.Receipt,
+        Color(0xFF9E2637),
+        Color(0xFFF4E9EB)
+    ),
+    CategoryUiItem(
+        "Education",
+        Icons.Default.School,
+        Color(0xFF7B1FA2),
+        Color(0xFFF1E7F5)
+    ),
+    CategoryUiItem(
+        "Entertainment",
+        Icons.Default.SportsEsports,
+        Color(0xFF388E3C),
+        Color(0xFFE9F3E9)
+    ),
+    CategoryUiItem(
+        "Food and Dining",
+        Icons.Default.Restaurant,
+        Color(0xFFFF8200),
+        Color(0xFFFFF1E2)
+    ),
+    CategoryUiItem(
+        "Gifts and Donation",
+        Icons.Default.CardGiftcard,
+        Color(0xFF008577),
+        Color(0xFFE3F2F0)
+    ),
+    CategoryUiItem(
+        "Insurance",
+        Icons.Default.VerifiedUser,
+        Color(0xFF4057B8),
+        Color(0xFFE9ECF8)
+    ),
+    CategoryUiItem(
+        "Investments",
+        Icons.Default.TrendingUp,
+        Color(0xFF79B83D),
+        Color(0xFFF0F6E9)
+    ),
+    CategoryUiItem(
+        "Medical",
+        Icons.Default.Favorite,
+        Color(0xFFEF3C3C),
+        Color(0xFFFCEAEA)
+    ),
+    CategoryUiItem(
+        "Shopping",
+        Icons.Default.LocalGroceryStore,
+        Color(0xFF008B8B),
+        Color(0xFFE6F4F4)
+    ),
+    CategoryUiItem(
+        "Home",
+        Icons.Default.Home,
+        Color(0xFF795548),
+        Color(0xFFF1EAE7)
+    ),
+    CategoryUiItem(
+        "Transportation",
+        Icons.Default.DirectionsCar,
+        Color(0xFF3F51B5),
+        Color(0xFFE9ECF8)
+    ),
+    CategoryUiItem(
+        "Travel",
+        Icons.Default.FlightTakeoff,
+        Color(0xFF00838F),
+        Color(0xFFE4F3F5)
+    )
+)
+
+// Hardcoded income categories.
+private val incomeCategories = listOf(
+    CategoryUiItem(
+        "Salary",
+        Icons.Default.Work,
+        Color(0xFF2E7D32),
+        Color(0xFFE8F3E9)
+    ),
+    CategoryUiItem(
+        "Business",
+        Icons.Default.AccountBalanceWallet,
+        Color(0xFF4057B8),
+        Color(0xFFE9ECF8)
+    ),
+    CategoryUiItem(
+        "Investments",
+        Icons.Default.TrendingUp,
+        Color(0xFF79B83D),
+        Color(0xFFF0F6E9)
+    ),
+    CategoryUiItem(
+        "Rental Income",
+        Icons.Default.Home,
+        Color(0xFF7B1FA2),
+        Color(0xFFF1E7F5)
+    ),
+    CategoryUiItem(
+        "Gifts",
+        Icons.Default.CardGiftcard,
+        Color(0xFF008577),
+        Color(0xFFE3F2F0)
+    ),
+    CategoryUiItem(
+        "Interest",
+        Icons.Default.AttachMoney,
+        Color(0xFFFF8200),
+        Color(0xFFFFF1E2)
+    ),
+    CategoryUiItem(
+        "Other Income",
+        Icons.Default.Payments,
+        Color(0xFF00838F),
+        Color(0xFFE4F3F5)
+    )
+)
+
+@Composable
+fun CategoryEditScreen(
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit = {},
+    onFilterClick: () -> Unit = {},
+    onDefaultCategoryClick: () -> Unit = {},
+    onEditOrderClick: () -> Unit = {},
+    onCategoryClick: (String) -> Unit = {},
+    onAddCategoryClick: () -> Unit = {}
+) {
+    var selectedType by remember { mutableIntStateOf(0) }
+
+    val categories = if (selectedType == 0) {
+        expenseCategories
+    } else {
+        incomeCategories
+    }
+
+    val defaultCategory = if (selectedType == 0) {
+        "Shopping"
+    } else {
+        "Salary"
+    }
+
+    val categoryRows = categories.chunked(2)
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            CommonTopBar(
+                "Categories",
+                onStartClick = onBackClick
+            )
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                Spacer(Modifier.height(24.dp))
+
+                CommonTabSelector(
+                    tabs = listOf("Spending", "Income"),
+                    selectedTab = selectedType,
+                    onTabSelected = {selectedType = it }
+                )
+
+                Spacer(Modifier.height(22.dp))
+
+                DefaultCategoryCard(
+                    categoryName = defaultCategory,
+                    onClick = onDefaultCategoryClick
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            top = 22.dp,
+                            bottom = 12.dp
+                        ),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    EditOrderButton(
+                        onClick = onEditOrderClick
+                    )
+                }
+
+                categoryRows.forEach { rowItems ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        rowItems.forEach { category ->
+                            CategoryCard(
+                                category = category,
+                                modifier = Modifier.weight(1f),
+                                onClick = {
+                                    onCategoryClick(category.name)
+                                }
+                            )
+                        }
+
+                        if (rowItems.size == 1) {
+                            Spacer(Modifier.weight(1f))
+                        }
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+                }
+
+                // Prevent the floating button from covering the last row.
+                Spacer(Modifier.height(76.dp))
+            }
+        }
+
+        // Floating add button.
+        FloatingActionButton(
+            onClick = onAddCategoryClick,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .navigationBarsPadding()
+                .padding(
+                    end = 22.dp,
+                    bottom = 22.dp
+                ),
+            shape = RoundedCornerShape(12.dp),
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add category"
+            )
+        }
+    }
+}
+
+@Composable
+private fun CategoryTypeSelector(
+    selectedType: Int,
+    onTypeSelected: (Int) -> Unit
+) {
+    Surface(
+        shape = RoundedCornerShape(50),
+        color = MaterialTheme.colorScheme
+            .surfaceVariant
+            .copy(alpha = 0.5f),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(5.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            listOf("Expense", "Income").forEachIndexed { index, label ->
+                val selected = index == selectedType
+
+                val selectedBackground by animateColorAsState(
+                    targetValue = if (selected) {
+                        MaterialTheme.colorScheme.surface
+                    } else {
+                        Color.Transparent
+                    },
+                    label = "categoryTabBackground"
+                )
+
+                val selectedTextColor by animateColorAsState(
+                    targetValue = if (selected) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme
+                            .onSurfaceVariant
+                            .copy(alpha = 0.65f)
+                    },
+                    label = "categoryTabText"
+                )
+
+                Surface(
+                    onClick = {
+                        onTypeSelected(index)
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(50),
+                    color = selectedBackground,
+                    shadowElevation = if (selected) 2.dp else 0.dp
+                ) {
+                    Box(
+                        modifier = Modifier.padding(
+                            vertical = 14.dp,
+                            horizontal = 8.dp
+                        ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = label,
+                            color = selectedTextColor,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = if (selected) {
+                                FontWeight.SemiBold
+                            } else {
+                                FontWeight.Medium
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DefaultCategoryCard(
+    categoryName: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 3.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 20.dp,
+                    vertical = 18.dp
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "Default Category",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(Modifier.height(3.dp))
+
+                Text(
+                    text = categoryName,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = "Choose default category",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(30.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun EditOrderButton(
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 2.dp
+    ) {
+        Row(
+            modifier = Modifier.padding(
+                horizontal = 16.dp,
+                vertical = 11.dp
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.FilterList,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.size(20.dp)
+            )
+
+            Text(
+                text = "Edit order",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+@Composable
+private fun CategoryCard(
+    category: CategoryUiItem,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.aspectRatio(1.48f),
+        shape = RoundedCornerShape(30.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 3.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    horizontal = 8.dp,
+                    vertical = 12.dp
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(category.iconBackground),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = category.icon,
+                    contentDescription = category.name,
+                    tint = category.tint,
+                    modifier = Modifier.size(25.dp)
+                )
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            Text(
+                text = category.name,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                fontSize = 15.sp,
+                lineHeight = 18.sp
+            )
+        }
+    }
+}

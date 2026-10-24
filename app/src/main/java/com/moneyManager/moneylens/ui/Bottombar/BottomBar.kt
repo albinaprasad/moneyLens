@@ -40,7 +40,7 @@ fun BottomBar(
             val route = when (index) {
                 0 -> AppScreens.TopScreen
                 1 -> AppScreens.HistoryScreen
-                2 -> AppScreens.HistoryScreen
+                2 -> AppScreens.CategoryEditScreen
                 3 -> AppScreens.SettingsScreen
                 else -> return@forEachIndexed
             }

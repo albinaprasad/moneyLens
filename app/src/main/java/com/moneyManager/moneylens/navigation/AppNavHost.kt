@@ -13,6 +13,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.moneyManager.moneylens.enums.AppLaunchState
 import com.moneyManager.moneylens.ui.AnalysisAndHistoryScreen.HistoryDetailsScreen
+import com.moneyManager.moneylens.ui.CategoryEditScreen.CategoryEditScreen
 import com.moneyManager.moneylens.ui.HistoryScreen.HistoryScreen
 import com.moneyManager.moneylens.ui.HistoryScreen.HistoryViewModal
 import com.moneyManager.moneylens.ui.SaveScreen.SaveScreen
@@ -159,6 +160,10 @@ fun AppNavHost(navController: NavHostController) {
                         animatedVisibilityScope = this
                     )
                 }
+            }
+
+            composable<AppScreens.CategoryEditScreen> {
+                CategoryEditScreen()
             }
         }
     }
