@@ -1,5 +1,9 @@
 package com.moneyManager.moneylens.ui.HistoryScreen
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -61,7 +65,10 @@ fun HistoryScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {},
     onNavigateToHistoryDetails: (Int, String) -> Unit = { _, _ -> },
-    viewModal: HistoryViewModal
+    viewModal: HistoryViewModal,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
+
 ) {
 
     val uiState by viewModal.historyUiState.collectAsStateWithLifecycle()
@@ -100,6 +107,8 @@ fun HistoryScreen(
     if (isLandscape()) {
         HistoryLandscapeMode(
             modifier = modifier,
+            sharedTransitionScope = sharedTransitionScope,
+            animatedVisibilityScope = animatedVisibilityScope,
             uiState = uiState,
             selectedCategoryType = selectedCategoryType,
             onCategoryTypeSelected = { selectedCategoryType = it },
@@ -135,6 +144,8 @@ fun HistoryScreen(
     } else {
         HistoryPortraitMode(
             modifier = modifier,
+            sharedTransitionScope,
+            animatedVisibilityScope,
             uiState = uiState,
             selectedCategoryType = selectedCategoryType,
             onCategoryTypeSelected = { selectedCategoryType = it },
@@ -173,6 +184,8 @@ fun HistoryScreen(
 @Composable
 private fun HistoryPortraitMode(
     modifier: Modifier = Modifier,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     uiState: HistoryUiState,
     selectedCategoryType: Int,
     onCategoryTypeSelected: (Int) -> Unit,
@@ -216,6 +229,8 @@ private fun HistoryPortraitMode(
         Spacer(Modifier.height(24.dp))
 
         CategoriesSection(
+            sharedTransitionScope,
+            animatedVisibilityScope,
             selectedCategoryType = selectedCategoryType,
             onCategoryTypeSelected = onCategoryTypeSelected,
             chartSlices = chartSlices,
@@ -244,6 +259,8 @@ private fun HistoryPortraitMode(
 @Composable
 private fun HistoryLandscapeMode(
     modifier: Modifier = Modifier,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     uiState: HistoryUiState,
     selectedCategoryType: Int,
     onCategoryTypeSelected: (Int) -> Unit,
@@ -310,6 +327,8 @@ private fun HistoryLandscapeMode(
             Spacer(Modifier.height(12.dp))
 
             CategoriesSection(
+                sharedTransitionScope,
+                animatedVisibilityScope,
                 selectedCategoryType = selectedCategoryType,
                 onCategoryTypeSelected = onCategoryTypeSelected,
                 chartSlices = chartSlices,
@@ -412,6 +431,8 @@ private fun HistoryHeaderSection(
 
 @Composable
 private fun CategoriesSection(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     selectedCategoryType: Int,
     onCategoryTypeSelected: (Int) -> Unit,
     chartSlices: List<ChartSlice>,
@@ -466,12 +487,25 @@ private fun CategoriesSection(
             } else {
                 chartSlices.forEach { slice ->
                     Row(
-                        modifier = Modifier.fillMaxWidth()
-                            .clickable {
-                                onCategoryClick(slice.name)
-                            },
-                        verticalAlignment = Alignment.CenterVertically,
-
+                        modifier = with(sharedTransitionScope) {
+                            Modifier
+                                .fillMaxWidth()
+                                .sharedBounds(
+                                    sharedContentState = rememberSharedContentState(
+                                        key = "category-container-${slice.name}"
+                                    ),
+                                    animatedVisibilityScope = animatedVisibilityScope,
+                                    boundsTransform = { initialBounds, targetBounds ->
+                                        tween(
+                                            durationMillis = 500,
+                                            easing = FastOutSlowInEasing
+                                        )
+                                    }
+                                )
+                        }.clickable {
+                            onCategoryClick(slice.name)
+                        },
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier

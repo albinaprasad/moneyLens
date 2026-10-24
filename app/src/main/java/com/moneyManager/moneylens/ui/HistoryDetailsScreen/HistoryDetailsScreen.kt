@@ -1,6 +1,10 @@
 package com.moneyManager.moneylens.ui.AnalysisAndHistoryScreen
 
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -53,7 +57,6 @@ import com.moneyManager.moneylens.database.Entity.Transaction
 import com.moneyManager.moneylens.ui.HistoryScreen.HistoryViewModal
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
 import com.moneyManager.moneylens.ui.theme.GreenText
-import com.moneyManager.moneylens.ui.theme.SavingsTint
 import com.moneyManager.moneylens.ui.utils.formatAmountToTwoDecimal
 import java.time.DayOfWeek
 import java.time.Instant
@@ -73,7 +76,9 @@ fun HistoryDetailsScreen(
     categoryId: Int,
     categoryType: String,
     onBackClick: () -> Unit,
-    onTransactionClick: (Int) -> Unit = {}
+    onTransactionClick: (Int) -> Unit = {},
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
 
     val uiState by viewModal.historyUiState.collectAsStateWithLifecycle()
@@ -160,7 +165,9 @@ fun HistoryDetailsScreen(
                     categoryIcon = viewModal.getCategoryIcon(
                         selectedCategory?.icon.orEmpty()
                     ),
-                    categoryColor = Color(selectedCategory?.color ?: android.graphics.Color.GRAY)
+                    categoryColor = Color(selectedCategory?.color ?: android.graphics.Color.GRAY),
+                    sharedTransitionScope = sharedTransitionScope,
+                    animatedVisibilityScope = animatedVisibilityScope
                 )
 
                 Spacer(Modifier.height(24.dp))
@@ -201,10 +208,27 @@ private fun CategorySummaryCard(
     categoryName: String,
     categoryIcon: ImageVector,
     categoryColor: Color,
-    categoryType: String
+    categoryType: String,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope
 ) {
     ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = with(sharedTransitionScope) {
+            Modifier
+                .fillMaxWidth()
+                .sharedBounds(
+                    sharedContentState = rememberSharedContentState(
+                        key = "category-container-$categoryName"
+                    ),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    boundsTransform = { initialBounds, targetBounds ->
+                        tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    }
+                )
+        },
         shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.elevatedCardElevation(
             defaultElevation = 1.dp
@@ -271,7 +295,7 @@ private fun CategorySummaryCard(
                         text = "₹${formatAmountToTwoDecimal(total)}",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = SavingsTint,
+                        color = categoryColor,
                         maxLines = 1
                     )
                 }
