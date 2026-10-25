@@ -19,25 +19,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.FlightTakeoff
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocalGroceryStore
-import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.Receipt
-import androidx.compose.material.icons.filled.Restaurant
-import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.SportsEsports
-import androidx.compose.material.icons.filled.TrendingUp
-import androidx.compose.material.icons.filled.VerifiedUser
-import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +42,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moneyManager.moneylens.database.Entity.Category
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTabSelector
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
 
@@ -66,128 +53,6 @@ private data class CategoryUiItem(
     val icon: ImageVector,
     val tint: Color,
     val iconBackground: Color
-)
-
-// Hardcoded expense categories with pastel colors.
-private val expenseCategories = listOf(
-    CategoryUiItem(
-        "Bills and Utilities",
-        Icons.Default.Receipt,
-        Color(0xFF9E2637),
-        Color(0xFFF4E9EB)
-    ),
-    CategoryUiItem(
-        "Education",
-        Icons.Default.School,
-        Color(0xFF7B1FA2),
-        Color(0xFFF1E7F5)
-    ),
-    CategoryUiItem(
-        "Entertainment",
-        Icons.Default.SportsEsports,
-        Color(0xFF388E3C),
-        Color(0xFFE9F3E9)
-    ),
-    CategoryUiItem(
-        "Food and Dining",
-        Icons.Default.Restaurant,
-        Color(0xFFFF8200),
-        Color(0xFFFFF1E2)
-    ),
-    CategoryUiItem(
-        "Gifts and Donation",
-        Icons.Default.CardGiftcard,
-        Color(0xFF008577),
-        Color(0xFFE3F2F0)
-    ),
-    CategoryUiItem(
-        "Insurance",
-        Icons.Default.VerifiedUser,
-        Color(0xFF4057B8),
-        Color(0xFFE9ECF8)
-    ),
-    CategoryUiItem(
-        "Investments",
-        Icons.Default.TrendingUp,
-        Color(0xFF79B83D),
-        Color(0xFFF0F6E9)
-    ),
-    CategoryUiItem(
-        "Medical",
-        Icons.Default.Favorite,
-        Color(0xFFEF3C3C),
-        Color(0xFFFCEAEA)
-    ),
-    CategoryUiItem(
-        "Shopping",
-        Icons.Default.LocalGroceryStore,
-        Color(0xFF008B8B),
-        Color(0xFFE6F4F4)
-    ),
-    CategoryUiItem(
-        "Home",
-        Icons.Default.Home,
-        Color(0xFF795548),
-        Color(0xFFF1EAE7)
-    ),
-    CategoryUiItem(
-        "Transportation",
-        Icons.Default.DirectionsCar,
-        Color(0xFF3F51B5),
-        Color(0xFFE9ECF8)
-    ),
-    CategoryUiItem(
-        "Travel",
-        Icons.Default.FlightTakeoff,
-        Color(0xFF00838F),
-        Color(0xFFE4F3F5)
-    )
-)
-
-// Hardcoded income categories.
-private val incomeCategories = listOf(
-    CategoryUiItem(
-        "Salary",
-        Icons.Default.Work,
-        Color(0xFF2E7D32),
-        Color(0xFFE8F3E9)
-    ),
-    CategoryUiItem(
-        "Business",
-        Icons.Default.AccountBalanceWallet,
-        Color(0xFF4057B8),
-        Color(0xFFE9ECF8)
-    ),
-    CategoryUiItem(
-        "Investments",
-        Icons.Default.TrendingUp,
-        Color(0xFF79B83D),
-        Color(0xFFF0F6E9)
-    ),
-    CategoryUiItem(
-        "Rental Income",
-        Icons.Default.Home,
-        Color(0xFF7B1FA2),
-        Color(0xFFF1E7F5)
-    ),
-    CategoryUiItem(
-        "Gifts",
-        Icons.Default.CardGiftcard,
-        Color(0xFF008577),
-        Color(0xFFE3F2F0)
-    ),
-    CategoryUiItem(
-        "Interest",
-        Icons.Default.AttachMoney,
-        Color(0xFFFF8200),
-        Color(0xFFFFF1E2)
-    ),
-    CategoryUiItem(
-        "Other Income",
-        Icons.Default.Payments,
-        Color(0xFF00838F),
-        Color(0xFFE4F3F5)
-    )
 )
 
 @Composable
@@ -200,7 +65,14 @@ fun CategoryEditScreen(
     onCategoryClick: (String) -> Unit = {},
     onAddCategoryClick: () -> Unit = {}
 ) {
+    val viewModal = hiltViewModel<CategoryEditViewModal>()
     var selectedType by remember { mutableIntStateOf(0) }
+
+    val expenseCategories by viewModal.expenseCategories
+        .collectAsStateWithLifecycle()
+
+    val incomeCategories by viewModal.incomeCategories
+        .collectAsStateWithLifecycle()
 
     val categories = if (selectedType == 0) {
         expenseCategories
@@ -272,6 +144,7 @@ fun CategoryEditScreen(
                         rowItems.forEach { category ->
                             CategoryCard(
                                 category = category,
+                                viewModel = viewModal,
                                 modifier = Modifier.weight(1f),
                                 onClick = {
                                     onCategoryClick(category.name)
@@ -473,9 +346,10 @@ private fun EditOrderButton(
 
 @Composable
 private fun CategoryCard(
-    category: CategoryUiItem,
+    category: Category,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    viewModel: CategoryEditViewModal
 ) {
     Surface(
         onClick = onClick,
@@ -498,13 +372,13 @@ private fun CategoryCard(
                 modifier = Modifier
                     .size(52.dp)
                     .clip(RoundedCornerShape(18.dp))
-                    .background(category.iconBackground),
+                    .background(Color(category.color).copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = category.icon,
+                    imageVector = viewModel.getCategoryIcon(category.icon),
                     contentDescription = category.name,
-                    tint = category.tint,
+                    tint = Color(category.color),
                     modifier = Modifier.size(25.dp)
                 )
             }
