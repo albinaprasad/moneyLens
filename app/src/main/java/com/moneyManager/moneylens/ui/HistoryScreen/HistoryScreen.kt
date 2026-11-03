@@ -2,8 +2,6 @@ package com.moneyManager.moneylens.ui.HistoryScreen
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -488,20 +486,7 @@ private fun CategoriesSection(
                 chartSlices.forEach { slice ->
                     Row(
                         modifier = with(sharedTransitionScope) {
-                            Modifier
-                                .fillMaxWidth()
-                                .sharedBounds(
-                                    sharedContentState = rememberSharedContentState(
-                                        key = "category-container-${slice.name}"
-                                    ),
-                                    animatedVisibilityScope = animatedVisibilityScope,
-                                    boundsTransform = { initialBounds, targetBounds ->
-                                        tween(
-                                            durationMillis = 500,
-                                            easing = FastOutSlowInEasing
-                                        )
-                                    }
-                                )
+                            Modifier.fillMaxWidth()
                         }.clickable {
                             onCategoryClick(slice.name)
                         },

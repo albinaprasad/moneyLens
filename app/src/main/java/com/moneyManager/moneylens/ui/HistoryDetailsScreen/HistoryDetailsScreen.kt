@@ -3,8 +3,6 @@ package com.moneyManager.moneylens.ui.AnalysisAndHistoryScreen
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,7 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -51,6 +49,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moneyManager.moneylens.AnimationManager.AnimationManager.animateSlideInFromRight
+import com.moneyManager.moneylens.AnimationManager.AnimationManager.rememberEntranceState
 import com.moneyManager.moneylens.DataClass.TimePeriod
 import com.moneyManager.moneylens.DataClass.TransactionGroup
 import com.moneyManager.moneylens.database.Entity.Transaction
@@ -141,6 +141,8 @@ fun HistoryDetailsScreen(
             )
         }
 
+    val isVisible = rememberEntranceState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -156,45 +158,65 @@ fun HistoryDetailsScreen(
             )
         ) {
             item {
-                CategorySummaryCard(
-                    total = categoryTotalAmount,
-                    count = count,
-                    percentage = percentage,
-                    categoryType = categoryType,
-                    categoryName = selectedCategory?.categoryName ?: "Category",
-                    categoryIcon = viewModal.getCategoryIcon(
-                        selectedCategory?.icon.orEmpty()
-                    ),
-                    categoryColor = Color(selectedCategory?.color ?: android.graphics.Color.GRAY),
-                    sharedTransitionScope = sharedTransitionScope,
-                    animatedVisibilityScope = animatedVisibilityScope
-                )
+                Column(
+                    modifier = Modifier.animateSlideInFromRight(
+                        visible = isVisible,
+                        duration = 400
+                    )
+                ) {
+                    CategorySummaryCard(
+                        total = categoryTotalAmount,
+                        count = count,
+                        percentage = percentage,
+                        categoryType = categoryType,
+                        categoryName = selectedCategory?.categoryName ?: "Category",
+                        categoryIcon = viewModal.getCategoryIcon(
+                            selectedCategory?.icon.orEmpty()
+                        ),
+                        categoryColor = Color(
+                            selectedCategory?.color ?: android.graphics.Color.GRAY
+                        ),
+                        sharedTransitionScope = sharedTransitionScope,
+                        animatedVisibilityScope = animatedVisibilityScope
+                    )
 
-                Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(24.dp))
 
-                PeriodSelector(
-                    selectedPeriod = selectedPeriod, onPeriodSelected = {
-                        selectedPeriod = it
-                    })
+                    PeriodSelector(
+                        selectedPeriod = selectedPeriod, onPeriodSelected = {
+                            selectedPeriod = it
+                        })
 
-                Spacer(Modifier.height(30.dp))
+                    Spacer(Modifier.height(30.dp))
+                }
             }
 
-            items(
-                items = transactionGroups, key = { it.title }) { group ->
-                TransactionGroupSection(
-                    group = group,
-                    categoryName = selectedCategory?.categoryName ?: "Unknown",
-                    categoryIcon = viewModal.getCategoryIcon(
-                        selectedCategory?.icon.orEmpty()
-                    ),
-                    categoryColor = Color(
-                        selectedCategory?.color ?: android.graphics.Color.GRAY
-                    ),
-                    onTransactionClick = onTransactionClick
-                )
+            itemsIndexed(
+                items = transactionGroups,
+                key = { _, group -> group.title }
+            ) { index, group ->
+                Column(
+                    modifier = Modifier.animateSlideInFromRight(
+                        visible = isVisible,
+                        index = index,
+                        baseDelay = 150, // Starts after header moves in
+                        stepDelay = 80   // Delay per list item
+                    )
+                ) {
+                    TransactionGroupSection(
+                        group = group,
+                        categoryName = selectedCategory?.categoryName ?: "Unknown",
+                        categoryIcon = viewModal.getCategoryIcon(
+                            selectedCategory?.icon.orEmpty()
+                        ),
+                        categoryColor = Color(
+                            selectedCategory?.color ?: android.graphics.Color.GRAY
+                        ),
+                        onTransactionClick = onTransactionClick
+                    )
 
-                Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(24.dp))
+                }
             }
         }
     }
@@ -214,20 +236,7 @@ private fun CategorySummaryCard(
 ) {
     ElevatedCard(
         modifier = with(sharedTransitionScope) {
-            Modifier
-                .fillMaxWidth()
-                .sharedBounds(
-                    sharedContentState = rememberSharedContentState(
-                        key = "category-container-$categoryName"
-                    ),
-                    animatedVisibilityScope = animatedVisibilityScope,
-                    boundsTransform = { initialBounds, targetBounds ->
-                        tween(
-                            durationMillis = 500,
-                            easing = FastOutSlowInEasing
-                        )
-                    }
-                )
+            Modifier.fillMaxWidth()
         },
         shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.elevatedCardElevation(
