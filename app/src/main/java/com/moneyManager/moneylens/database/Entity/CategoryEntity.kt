@@ -11,5 +11,6 @@ data class Category(
     val icon: String,      // icon identifier
     val type: String,      // "INCOME" or "EXPENSE"
     val color: Int ,        // Color as Int (e.g. Color.toArgb())
-    val isDefault: Boolean  // true = built-in, false = user-created
+    val isDefault: Boolean , // true = built-in, false = user-created
+    val sortOrder:Int = 0   // used for handling the sort order  of the categories
 )

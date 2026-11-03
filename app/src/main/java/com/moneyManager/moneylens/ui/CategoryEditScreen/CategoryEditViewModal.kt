@@ -66,4 +66,10 @@ class CategoryEditViewModal @Inject constructor(
     fun getCategoryIcon(icon: String): ImageVector {
         return saveScreenRepository.getCategoryIcon(icon)
     }
+
+    fun saveOrder(ordered: List<Category>) {
+        viewModelScope.launch {
+            categoryDao.updateAll(ordered.mapIndexed { index, category -> category.copy(sortOrder = index) })
+        }
+    }
 }

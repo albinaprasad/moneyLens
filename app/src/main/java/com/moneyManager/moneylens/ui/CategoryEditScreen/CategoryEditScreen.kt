@@ -1,10 +1,12 @@
 package com.moneyManager.moneylens.ui.CategoryEditScreen
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -14,10 +16,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
@@ -30,23 +36,29 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moneyManager.moneylens.database.Entity.Category
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTabSelector
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyGridState
 
 private data class CategoryUiItem(
     val name: String,
@@ -85,9 +97,19 @@ fun CategoryEditScreen(
     } else {
         "Salary"
     }
-
+    val source = if (selectedType == 0) expenseCategories else incomeCategories
+    var items by remember(source) { mutableStateOf(source) }
+    val currentItems by rememberUpdatedState(items)
     val categoryRows = categories.chunked(2)
-
+    val gridState = rememberLazyGridState()
+    val reorderState = rememberReorderableLazyGridState(gridState) { from, to ->
+        val fromIndex = items.indexOfFirst { it.id == from.key }
+        val toIndex = items.indexOfFirst { it.id == to.key }
+        if (fromIndex != -1 && toIndex != -1) {
+            items = items.toMutableList().apply { add(toIndex, removeAt(fromIndex)) }
+        }
+    }
+    val haptics = LocalHapticFeedback.current
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -101,67 +123,70 @@ fun CategoryEditScreen(
                 onStartClick = onBackClick
             )
 
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Spacer(Modifier.height(24.dp))
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                state = gridState,
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(
+                    start = 16.dp, end = 16.dp, top = 24.dp, bottom = 100.dp
+                ),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
 
-                CommonTabSelector(
-                    tabs = listOf("Spending", "Income"),
-                    selectedTab = selectedType,
-                    onTabSelected = {selectedType = it }
-                )
+                item(key = "tabs", span = { GridItemSpan(maxLineSpan) }) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(modifier = Modifier.widthIn(max = 280.dp)) {
+                            CommonTabSelector(
+                                tabs = listOf("Spending", "Income"),
+                                selectedTab = selectedType,
+                                onTabSelected = { selectedType = it }
+                            )
+                        }
+                    }
+                }
 
-                Spacer(Modifier.height(22.dp))
-
-                DefaultCategoryCard(
-                    categoryName = defaultCategory,
-                    onClick = onDefaultCategoryClick
-                )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            top = 22.dp,
-                            bottom = 12.dp
-                        ),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    EditOrderButton(
-                        onClick = onEditOrderClick
+                item(key = "default", span = { GridItemSpan(maxLineSpan) }) {
+                    DefaultCategoryCard(
+                        categoryName = defaultCategory,
+                        onClick = onDefaultCategoryClick
                     )
                 }
 
-                categoryRows.forEach { rowItems ->
+                item(key = "editOrder", span = { GridItemSpan(maxLineSpan) }) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        horizontalArrangement = Arrangement.End
                     ) {
-                        rowItems.forEach { category ->
-                            CategoryCard(
-                                category = category,
-                                viewModel = viewModal,
-                                modifier = Modifier.weight(1f),
-                                onClick = {
-                                    onCategoryClick(category.name)
+                        EditOrderButton(onClick = onEditOrderClick)
+                    }
+                }
+                items(items, key = { it.id }) { category ->
+                    ReorderableItem(reorderState, key = category.id) { isDragging ->
+                        val elevation by animateDpAsState(
+                            if (isDragging) 12.dp else 3.dp,
+                            label = "dragElevation"
+                        )
+                        CategoryCard(
+                            category = category,
+                            viewModel = viewModal,
+                            elevation = elevation,
+                            onClick = { onCategoryClick(category.name) },
+                            modifier = Modifier.longPressDraggableHandle(
+                                onDragStarted = {
+                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                },
+                                onDragStopped = {
+                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    viewModal.saveOrder(currentItems)
                                 }
                             )
-                        }
-
-                        if (rowItems.size == 1) {
-                            Spacer(Modifier.weight(1f))
-                        }
+                        )
                     }
-
-                    Spacer(Modifier.height(16.dp))
                 }
-
-                // Prevent the floating button from covering the last row.
-                Spacer(Modifier.height(76.dp))
             }
         }
 
@@ -347,6 +372,7 @@ private fun EditOrderButton(
 @Composable
 private fun CategoryCard(
     category: Category,
+    elevation: Dp = 3.dp,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     viewModel: CategoryEditViewModal
@@ -356,7 +382,7 @@ private fun CategoryCard(
         modifier = modifier.aspectRatio(1.48f),
         shape = RoundedCornerShape(30.dp),
         color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 3.dp
+        shadowElevation = elevation
     ) {
         Column(
             modifier = Modifier
@@ -389,12 +415,10 @@ private fun CategoryCard(
                 text = category.name,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                fontSize = 15.sp,
-                lineHeight = 18.sp
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

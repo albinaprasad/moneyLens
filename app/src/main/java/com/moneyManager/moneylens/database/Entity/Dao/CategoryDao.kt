@@ -21,13 +21,13 @@ interface CategoryDao {
     @Delete
     suspend fun delete(category: Category)
 
-    @Query("SELECT * FROM categories ORDER BY name ASC")
+    @Query("SELECT * FROM categories ORDER BY sortOrder ASC, name ASC")
     fun getAll(): Flow<List<Category>>
 
     @Query("SELECT * FROM categories WHERE id = :id")
     fun getById(id: Int): Flow<Category?>
 
-    @Query("SELECT * FROM categories WHERE type = :type ORDER BY name ASC")
+    @Query("SELECT * FROM categories WHERE type = :type ORDER BY sortOrder ASC, name ASC")
     fun getByType(type: String): Flow<List<Category>>
 
     @Insert
@@ -36,9 +36,11 @@ interface CategoryDao {
     @Query("SELECT COUNT(*) FROM categories")
     suspend fun getCategoryCount(): Int
 
-    @Query("SELECT * FROM categories")
+    @Query("SELECT * FROM categories ORDER BY sortOrder ASC, name ASC")
     fun getAllCategories(): Flow<List<Category>>
 
     @Query("SELECT * FROM categories WHERE name = :name LIMIT 1")
     suspend fun getByName(name: String): Category?
+    @Update
+    suspend fun updateAll(categories: List<Category>)
 }

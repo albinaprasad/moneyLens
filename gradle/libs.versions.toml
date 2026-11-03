@@ -17,6 +17,7 @@ datastore = "1.2.1"
 navigation = "2.9.8"
 kotlinxSerializationJson = "1.11.0"
 animationCore = "1.11.4"
+reorderable = "3.1.0"
 room = "2.8.4"
 constraintlayout = "2.2.2"
 constraintlayoutCompose = "1.1.2"
@@ -54,6 +55,7 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-constraintlayout-compose = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
+reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
