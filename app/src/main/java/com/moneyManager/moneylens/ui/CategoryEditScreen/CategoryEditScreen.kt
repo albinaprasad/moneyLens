@@ -2,6 +2,7 @@ package com.moneyManager.moneylens.ui.CategoryEditScreen
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,7 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
@@ -54,18 +55,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.moneyManager.moneylens.AnimationManager.AnimationManager.jiggle
 import com.moneyManager.moneylens.database.Entity.Category
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTabSelector
 import com.moneyManager.moneylens.ui.commonUiElements.CommonTopBar
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyGridState
 
-private data class CategoryUiItem(
-    val name: String,
-    val icon: ImageVector,
-    val tint: Color,
-    val iconBackground: Color
-)
 
 @Composable
 fun CategoryEditScreen(
@@ -110,6 +106,7 @@ fun CategoryEditScreen(
         }
     }
     val haptics = LocalHapticFeedback.current
+    var isEditMode by remember { mutableStateOf(false) }
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -170,20 +167,33 @@ fun CategoryEditScreen(
                             if (isDragging) 12.dp else 3.dp,
                             label = "dragElevation"
                         )
+                        val scale by animateFloatAsState(
+                            if (isDragging) 1.06f else 1f,
+                            label = "dragScale"
+                        )
+
                         CategoryCard(
                             category = category,
                             viewModel = viewModal,
                             elevation = elevation,
                             onClick = { onCategoryClick(category.name) },
-                            modifier = Modifier.longPressDraggableHandle(
-                                onDragStarted = {
-                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                },
-                                onDragStopped = {
-                                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    viewModal.saveOrder(currentItems)
+                            modifier = Modifier
+                                .jiggle(enabled = isEditMode && !isDragging, seed = category.id)
+                                .graphicsLayer {
+                                    scaleX = scale
+                                    scaleY = scale
                                 }
-                            )
+                                .longPressDraggableHandle(
+                                    onDragStarted = {
+                                        isEditMode = true
+                                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    },
+                                    onDragStopped = {
+                                        isEditMode = false
+                                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        viewModal.saveOrder(currentItems)
+                                    }
+                                )
                         )
                     }
                 }

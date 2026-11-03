@@ -4,8 +4,13 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.EaseInQuart
 import androidx.compose.animation.core.EaseOutQuart
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
@@ -125,6 +130,26 @@ object AnimationManager {
             isVisible = true
         }
         return isVisible
+    }
+
+    @Composable
+     fun Modifier.jiggle(enabled: Boolean, seed: Int): Modifier {
+        if (!enabled) return this
+
+        val transition = rememberInfiniteTransition(label = "jiggle")
+        val angle by transition.animateFloat(
+            initialValue = -3f,
+            targetValue = 3f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = 120 + (seed % 3) * 20,
+                    easing = LinearEasing
+                ),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "jiggleAngle"
+        )
+        return this.graphicsLayer { rotationZ = angle }
     }
 
 }
