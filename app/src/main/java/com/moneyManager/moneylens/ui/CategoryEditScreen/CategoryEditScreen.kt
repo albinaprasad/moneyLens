@@ -96,12 +96,6 @@ fun CategoryEditScreen(
     val incomeCategories by viewModal.incomeCategories
         .collectAsStateWithLifecycle()
 
-    val categories = if (selectedType == 0) {
-        expenseCategories
-    } else {
-        incomeCategories
-    }
-
     val defaultCategory = if (selectedType == 0) {
         "Shopping"
     } else {
@@ -110,7 +104,6 @@ fun CategoryEditScreen(
     val source = if (selectedType == 0) expenseCategories else incomeCategories
     var items by remember(source) { mutableStateOf(source) }
     val currentItems by rememberUpdatedState(items)
-    val categoryRows = categories.chunked(2)
     val gridState = rememberLazyGridState()
     val reorderState = rememberReorderableLazyGridState(gridState) { from, to ->
         val fromIndex = items.indexOfFirst { it.id == from.key }
@@ -251,7 +244,11 @@ fun CategoryEditScreen(
                         )
                     }
                 }
+                item(key = "Spacer", span = { GridItemSpan(maxLineSpan) }) {
+                    Spacer(Modifier.fillMaxWidth().height(55.dp))
+                }
             }
+
         }
 
 

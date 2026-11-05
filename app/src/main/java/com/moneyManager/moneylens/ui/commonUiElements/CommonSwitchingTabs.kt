@@ -23,6 +23,11 @@ fun CommonTabSelector(
     modifier: Modifier = Modifier,
     accentColor: Color = MaterialTheme.colorScheme.primary
 ) {
+    val accentColor = if (selectedTab == 0) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.tertiary
+    }
 
     Row(
         modifier = modifier

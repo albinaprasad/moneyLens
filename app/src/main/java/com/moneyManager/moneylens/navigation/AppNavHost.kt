@@ -163,7 +163,9 @@ fun AppNavHost(navController: NavHostController) {
             }
 
             composable<AppScreens.CategoryEditScreen> {
-                CategoryEditScreen()
+                CategoryEditScreen( onBackClick = {
+                    navController.popBackStack()
+                })
             }
         }
     }
