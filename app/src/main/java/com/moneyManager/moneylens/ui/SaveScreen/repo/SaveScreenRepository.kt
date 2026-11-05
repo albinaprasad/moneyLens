@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.moneyManager.moneylens.database.Entity.Account
@@ -179,6 +180,7 @@ class SaveScreenRepository @Inject constructor(
             "Receipt" -> Icons.Default.Receipt
             "VerifiedUser" -> Icons.Default.VerifiedUser
             "CardGiftcard" -> Icons.Default.CardGiftcard
+            "Unknown" -> Icons.Outlined.QuestionMark
             else -> Icons.Default.Category
         }
     }

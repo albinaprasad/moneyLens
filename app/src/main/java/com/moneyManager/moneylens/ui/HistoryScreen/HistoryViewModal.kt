@@ -1,6 +1,7 @@
 package com.moneyManager.moneylens.ui.HistoryScreen
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,6 +15,7 @@ import com.moneyManager.moneylens.database.Entity.Transaction
 import com.moneyManager.moneylens.ui.SaveScreen.repo.SaveScreenRepository
 import com.moneyManager.moneylens.ui.theme.BankTint
 import com.moneyManager.moneylens.ui.theme.CashTint
+import com.moneyManager.moneylens.ui.theme.CategoryDeleted
 import com.moneyManager.moneylens.ui.theme.DefaultAccountTint
 import com.moneyManager.moneylens.ui.theme.SavingsTint
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,6 +45,7 @@ class HistoryViewModal @Inject constructor(
     var categories = emptyList<Category>()
     var accounts = emptyList<Account>()
 
+    val unknown = "Unknown"
     init {
         viewModelScope.launch {
             categories = historyRepository.getAllCategories().first()
@@ -249,18 +252,16 @@ class HistoryViewModal @Inject constructor(
             val category = categories.find { category ->
                 category.id == categoryId
             }
-            if (category == null) {
-                continue
-            }
+
             val totalAmount = categoryTransactions.sumOf { transaction ->
                 transaction.amount
             }
 
             val categoryExpense = CategoryExpense(
-                categoryId = category.id,
-                categoryName = category.name,
-                icon = category.icon,
-                color = category.color,
+                categoryId = category?.id ?: -1,
+                categoryName = category?.name ?: "Uncategorized",
+                icon = category?.icon ?: unknown,
+                color = category?.color ?: CategoryDeleted.toArgb(),
                 totalAmount = totalAmount
             )
 
@@ -294,18 +295,16 @@ class HistoryViewModal @Inject constructor(
             val category = categories.find { category ->
                 category.id == categoryId
             }
-            if (category == null) {
-                continue
-            }
+
             val totalAmount = categoryTransactions.sumOf { transaction ->
                 transaction.amount
             }
 
             val categoryExpense = CategoryExpense(
-                categoryId = category.id,
-                categoryName = category.name,
-                icon = category.icon,
-                color = category.color,
+                categoryId = category?.id ?: -1,
+                categoryName = category?.name ?: "Uncategorized",
+                icon = category?.icon ?: unknown,
+                color = category?.color ?: CategoryDeleted.toArgb(),
                 totalAmount = totalAmount
             )
 

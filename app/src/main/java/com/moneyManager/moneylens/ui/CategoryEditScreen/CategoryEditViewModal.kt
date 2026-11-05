@@ -69,7 +69,13 @@ class CategoryEditViewModal @Inject constructor(
 
     fun saveOrder(ordered: List<Category>) {
         viewModelScope.launch {
-            categoryDao.updateAll(ordered.mapIndexed { index, category -> category.copy(sortOrder = index) })
+            withContext(Dispatchers.IO) {
+                categoryDao.updateAll(ordered.mapIndexed { index, category ->
+                    category.copy(
+                        sortOrder = index
+                    )
+                })
+            }
         }
     }
 }
