@@ -1,8 +1,13 @@
 package com.moneyManager.moneylens.ui.CategoryEditScreen
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,13 +33,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,11 +51,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -107,6 +121,26 @@ fun CategoryEditScreen(
     }
     val haptics = LocalHapticFeedback.current
     var isEditMode by remember { mutableStateOf(false) }
+
+    var dragCenter by remember { mutableStateOf<Offset?>(null) }
+    var deleteBounds by remember { mutableStateOf<Rect?>(null) }
+    var showDeleteTarget by remember { mutableStateOf(false) }
+
+    val isOverDelete by remember {
+        derivedStateOf {
+            val center = dragCenter
+            val bounds = deleteBounds
+            val margin = 40f
+
+            showDeleteTarget && center != null && bounds != null &&
+                    center.x in (bounds.left - margin)..(bounds.right + margin) &&
+                    center.y in (bounds.top - margin)..(bounds.bottom + margin)
+        }
+    }
+
+    LaunchedEffect(isOverDelete) {
+        if (isOverDelete) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+    }
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -168,7 +202,11 @@ fun CategoryEditScreen(
                             label = "dragElevation"
                         )
                         val scale by animateFloatAsState(
-                            if (isDragging) 1.06f else 1f,
+                            targetValue = when {
+                                isDragging && isOverDelete -> 0.5f
+                                isDragging -> 1.06f
+                                else -> 1f
+                            },
                             label = "dragScale"
                         )
 
@@ -178,6 +216,9 @@ fun CategoryEditScreen(
                             elevation = elevation,
                             onClick = { onCategoryClick(category.name) },
                             modifier = Modifier
+                                .onGloballyPositioned { coords ->
+                                    if (isDragging) dragCenter = coords.boundsInRoot().center
+                                }
                                 .jiggle(enabled = isEditMode && !isDragging, seed = category.id)
                                 .graphicsLayer {
                                     scaleX = scale
@@ -186,12 +227,25 @@ fun CategoryEditScreen(
                                 .longPressDraggableHandle(
                                     onDragStarted = {
                                         isEditMode = true
+                                        showDeleteTarget = true
                                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                                     },
                                     onDragStopped = {
+                                        val shouldDelete = isOverDelete
+
                                         isEditMode = false
+                                        showDeleteTarget = false
+                                        dragCenter = null
                                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        viewModal.saveOrder(currentItems)
+
+                                        val remaining = if (shouldDelete) {
+                                            currentItems.filter { it.id != category.id }
+                                        } else {
+                                            currentItems
+                                        }
+                                        items = remaining
+                                        if (shouldDelete) viewModal.deleteCategory(category)
+                                        viewModal.saveOrder(remaining)
                                     }
                                 )
                         )
@@ -200,100 +254,82 @@ fun CategoryEditScreen(
             }
         }
 
-        // Floating add button.
+
+        val fabScale by animateFloatAsState(
+            targetValue = when {
+                isOverDelete -> 1.35f
+                showDeleteTarget -> 1.1f
+                else -> 1f
+            },
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow
+            ),
+            label = "fabScale"
+        )
+
+        val fabBias by animateFloatAsState(
+            targetValue = if (showDeleteTarget) 0f else 1f,
+            animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing),
+            label = "fabBias"
+        )
+
+        val fabColor by animateColorAsState(
+            targetValue = if (isOverDelete) {
+                MaterialTheme.colorScheme.error
+            } else if (showDeleteTarget) {
+                MaterialTheme.colorScheme.errorContainer
+            } else {
+                MaterialTheme.colorScheme.primaryContainer
+            },
+            animationSpec = tween(durationMillis = 250),
+            label = "fabColor"
+        )
+
+        val fabElevation by animateDpAsState(
+            targetValue = if (isOverDelete) 12.dp else 6.dp,
+            label = "fabElevation"
+        )
+
         FloatingActionButton(
-            onClick = onAddCategoryClick,
+            onClick = { if (!showDeleteTarget) onAddCategoryClick() },
             modifier = Modifier
-                .align(Alignment.BottomEnd)
+                .align(BiasAlignment(fabBias, 1f))
                 .navigationBarsPadding()
                 .padding(
-                    end = 22.dp,
+                    end = 22.dp * fabBias,
                     bottom = 22.dp
-                ),
-            shape = RoundedCornerShape(12.dp),
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add category"
-            )
-        }
-    }
-}
-
-@Composable
-private fun CategoryTypeSelector(
-    selectedType: Int,
-    onTypeSelected: (Int) -> Unit
-) {
-    Surface(
-        shape = RoundedCornerShape(50),
-        color = MaterialTheme.colorScheme
-            .surfaceVariant
-            .copy(alpha = 0.5f),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier.padding(5.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            listOf("Expense", "Income").forEachIndexed { index, label ->
-                val selected = index == selectedType
-
-                val selectedBackground by animateColorAsState(
-                    targetValue = if (selected) {
-                        MaterialTheme.colorScheme.surface
-                    } else {
-                        Color.Transparent
-                    },
-                    label = "categoryTabBackground"
                 )
+                .onGloballyPositioned { deleteBounds = it.boundsInRoot() }
+                .graphicsLayer {
+                    scaleX = fabScale
+                    scaleY = fabScale
+                },
+            shape = RoundedCornerShape(if (showDeleteTarget) 20.dp else 16.dp),
+            containerColor = fabColor,
+            contentColor = if (isOverDelete) {
+                MaterialTheme.colorScheme.onError
+            } else if (showDeleteTarget) {
+                MaterialTheme.colorScheme.onErrorContainer
+            } else {
+                MaterialTheme.colorScheme.onPrimaryContainer
+            },
+            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = fabElevation)
+        ) {
 
-                val selectedTextColor by animateColorAsState(
-                    targetValue = if (selected) {
-                        MaterialTheme.colorScheme.onSurface
-                    } else {
-                        MaterialTheme.colorScheme
-                            .onSurfaceVariant
-                            .copy(alpha = 0.65f)
-                    },
-                    label = "categoryTabText"
+            Crossfade(
+                targetState = showDeleteTarget,
+                animationSpec = tween(durationMillis = 200),
+                label = "fabIcon"
+            ) { isDeleting ->
+                Icon(
+                    imageVector = if (isDeleting) Icons.Default.Delete else Icons.Default.Add,
+                    contentDescription = "Add category"
                 )
-
-                Surface(
-                    onClick = {
-                        onTypeSelected(index)
-                    },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(50),
-                    color = selectedBackground,
-                    shadowElevation = if (selected) 2.dp else 0.dp
-                ) {
-                    Box(
-                        modifier = Modifier.padding(
-                            vertical = 14.dp,
-                            horizontal = 8.dp
-                        ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = label,
-                            color = selectedTextColor,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = if (selected) {
-                                FontWeight.SemiBold
-                            } else {
-                                FontWeight.Medium
-                            }
-                        )
-                    }
-                }
             }
         }
     }
 }
-
 @Composable
 private fun DefaultCategoryCard(
     categoryName: String,
