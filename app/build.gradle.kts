@@ -93,4 +93,5 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
     implementation("com.google.firebase:firebase-ai")
     implementation("com.google.firebase:firebase-appcheck-debug")
+    implementation("com.google.firebase:firebase-ai-ondevice:16.0.0-beta07")
 }

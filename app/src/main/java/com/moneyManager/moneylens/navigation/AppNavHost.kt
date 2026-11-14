@@ -21,6 +21,7 @@ import com.moneyManager.moneylens.ui.Settings.SettingsScreen
 import com.moneyManager.moneylens.ui.StratergyScreen.StrategyScreen
 import com.moneyManager.moneylens.ui.TopScreen.TopScreen
 import com.moneyManager.moneylens.ui.splashScreen.SplashScreen
+import com.moneyManager.moneylens.ui.voiceScreen.VoiceInputScreen
 import com.moneyManager.moneylens.ui.walkthrough.WalkThrough
 
 @Composable
@@ -164,6 +165,12 @@ fun AppNavHost(navController: NavHostController) {
 
             composable<AppScreens.CategoryEditScreen> {
                 CategoryEditScreen( onBackClick = {
+                    navController.popBackStack()
+                })
+            }
+
+            composable<AppScreens.VoiceScreen> {
+                VoiceInputScreen(onBack = {
                     navController.popBackStack()
                 })
             }

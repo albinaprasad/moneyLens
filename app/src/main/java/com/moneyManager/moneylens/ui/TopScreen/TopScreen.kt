@@ -57,6 +57,9 @@ fun TopScreen(navController: NavHostController) {
     ) { padding ->
         TopScreenContents(
             viewModel = viewModel,
+            onProfileClick = {
+                navController.navigate(AppScreens.VoiceScreen)
+            },
             modifier = Modifier.padding(padding)
         )
     }
@@ -67,7 +70,8 @@ fun TopScreen(navController: NavHostController) {
 @Composable
 fun TopScreenContents(
     viewModel: TopViewModal,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onProfileClick: () -> Unit = {}
 ) {
     val totalBalance by viewModel.totalBalance.collectAsState()
     val totalIncome by viewModel.totalIncome.collectAsState()
@@ -85,7 +89,8 @@ fun TopScreenContents(
             annualExpenses = annualExpenses,
             monthlyBudgetLimit = monthlyBudgetLimit,
             annualBudgetLimit = annualBudgetLimit,
-            modifier = modifier
+            modifier = modifier,
+            onProfileClick = onProfileClick
         )
     } else {
 
@@ -98,7 +103,7 @@ fun TopScreenContents(
                 .verticalScroll(rememberScrollState())
         ) {
             // Top Bar
-            TopBar()
+            TopBar(onProfileClick = onProfileClick)
 
             // Cards Section
             TopScreenCardSection(
@@ -128,7 +133,8 @@ fun TopLanscapeMode(
     annualExpenses: Double,
     monthlyBudgetLimit: Double,
     annualBudgetLimit: Double,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onProfileClick: () -> Unit = {}
 ) {
     Row(
         modifier = modifier
@@ -146,7 +152,7 @@ fun TopLanscapeMode(
                 .padding(end = 8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            TopBar()
+            TopBar(onProfileClick = onProfileClick)
             TopScreenCardSection(
                 totalBalance = totalBalance,
                 totalIncome = totalIncome,

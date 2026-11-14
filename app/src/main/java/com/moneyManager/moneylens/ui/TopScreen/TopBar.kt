@@ -2,6 +2,7 @@ package com.moneyManager.moneylens.ui.TopScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,7 +23,9 @@ import androidx.compose.ui.unit.dp
 import com.moneyManager.moneylens.R
 
 @Composable
-fun TopBar() {
+fun TopBar(
+    onProfileClick: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -51,6 +54,7 @@ fun TopBar() {
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
+                .clickable { onProfileClick() }
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(4.dp)
         )
