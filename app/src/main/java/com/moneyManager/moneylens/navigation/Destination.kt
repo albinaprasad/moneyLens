@@ -37,7 +37,8 @@ sealed class AppScreens {
 
     @Serializable
     object CategoryEditScreen: AppScreens()
-
     @Serializable
     data object VoiceScreen: AppScreens()
+    @Serializable
+    data object CategoryAddScreen: AppScreens()
 }

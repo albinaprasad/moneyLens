@@ -13,6 +13,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.moneyManager.moneylens.enums.AppLaunchState
 import com.moneyManager.moneylens.ui.AnalysisAndHistoryScreen.HistoryDetailsScreen
+import com.moneyManager.moneylens.ui.CategoryEditScreen.CategoryAddScreen
 import com.moneyManager.moneylens.ui.CategoryEditScreen.CategoryEditScreen
 import com.moneyManager.moneylens.ui.HistoryScreen.HistoryScreen
 import com.moneyManager.moneylens.ui.HistoryScreen.HistoryViewModal
@@ -166,6 +167,8 @@ fun AppNavHost(navController: NavHostController) {
             composable<AppScreens.CategoryEditScreen> {
                 CategoryEditScreen( onBackClick = {
                     navController.popBackStack()
+                },onAddCategoryClick = {
+                    navController.navigate(AppScreens.CategoryAddScreen)
                 })
             }
 
@@ -173,6 +176,10 @@ fun AppNavHost(navController: NavHostController) {
                 VoiceInputScreen(onBack = {
                     navController.popBackStack()
                 })
+            }
+
+            composable<AppScreens.CategoryAddScreen> {
+                CategoryAddScreen()
             }
         }
     }

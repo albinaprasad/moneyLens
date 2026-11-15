@@ -336,7 +336,8 @@ private fun DefaultCategoryCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        tonalElevation = 2.dp,
         shadowElevation = 3.dp
     ) {
         Row(
@@ -384,7 +385,8 @@ private fun EditOrderButton(
     Surface(
         onClick = onClick,
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        tonalElevation = 2.dp,
         shadowElevation = 2.dp
     ) {
         Row(
@@ -424,7 +426,8 @@ private fun CategoryCard(
         onClick = onClick,
         modifier = modifier.aspectRatio(1.48f),
         shape = RoundedCornerShape(30.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        tonalElevation = 2.dp,
         shadowElevation = elevation
     ) {
         Column(
