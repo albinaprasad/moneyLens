@@ -106,10 +106,7 @@ fun AppNavHost(navController: NavHostController) {
             }
 
             composable<AppScreens.SettingsScreen> {
-                SettingsScreen(onNavigate = { route ->
-                    navController.navigate(route)
-                }
-                )
+                SettingsScreen()
             }
 
             navigation<AppScreens.HistoryGraph>(
