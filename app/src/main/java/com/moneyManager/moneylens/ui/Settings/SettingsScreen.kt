@@ -145,7 +145,7 @@ fun SettingsScreen(
             .fillMaxSize()
             .background(LightContentBg)
     ) {
-        // --- TOP DARK CURVED HEADER ---
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -226,23 +226,6 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 3-Column Quick Action / Toggle Cards[cite: 1]
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    quickToggles.forEachIndexed { index, item ->
-                        QuickToggleCard(
-                            item = item,
-                            modifier = Modifier.weight(1f),
-                            onToggle = {
-                                quickToggles[index] = item.copy(initialState = !item.initialState)
-                            }
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
             }
         }
 
